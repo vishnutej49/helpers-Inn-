@@ -1,0 +1,35 @@
+<div class="helper-dashboard-container">
+  <div class="left-panel">
+    <div class="panel-header">
+      <h3>All Helpers</h3>
+      <button class="btn btn-add-new" [routerLink]="['/helpers/new']">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px">
+          <path d="M12 4C11.4477 4 11 4.44772 11 5V11H5C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13H11V19C11 19.5523 11.4477 20 12 20C12.5523 20 13 19.5523 13 19V13H19C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11H13V5C13 4.44772 12.5523 4 12 4Z" />
+        </svg>
+        Add New
+      </button>
+    </div>
+
+    <ul class="helper-list">
+      <li *ngIf="helpers.length === 0" class="no-helpers-message">
+        No helpers found. Click "Add New" to create one!
+      </li>
+      <li *ngFor="let helper of helpers"
+          [class.selected]="helper._id === selectedHelperId"
+          [routerLink]="['/helpers', helper._id]"
+          class="helper-list-item">
+        <img [src]="helper.photoURL || 'https://placehold.co/50x50/E0E0E0/000000?text=NP'"
+             alt="{{ helper.name }}'s photo" class="helper-photo"
+             onerror="this.onerror=null;this.src='https://placehold.co/50x50/E0E0E0/000000?text=NP';">
+        <div class="helper-info">
+          <span class="helper-name">{{ helper.name }}</span>
+          <span class="helper-service">{{ helper.serviceType }}</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="right-panel">
+    <router-outlet></router-outlet>
+  </div>
+</div>

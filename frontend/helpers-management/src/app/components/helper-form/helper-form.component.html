@@ -1,0 +1,120 @@
+<!-- src/app/components/helper-form/helper-form.component.html -->
+<div class="helper-form-container">
+  <h2>{{ isEditMode ? 'Edit Helper' : 'Add New Helper' }}</h2>
+
+  <form [formGroup]="helperForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="serviceType">Service Type:</label>
+      <input id="serviceType" type="text" formControlName="serviceType" class="form-control"
+             [class.is-invalid]="helperForm.get('serviceType')?.invalid && helperForm.get('serviceType')?.touched">
+      <div *ngIf="helperForm.get('serviceType')?.invalid && helperForm.get('serviceType')?.touched" class="invalid-feedback">
+        Service Type is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="organization">Organization:</label>
+      <input id="organization" type="text" formControlName="organization" class="form-control"
+             [class.is-invalid]="helperForm.get('organization')?.invalid && helperForm.get('organization')?.touched">
+      <div *ngIf="helperForm.get('organization')?.invalid && helperForm.get('organization')?.touched" class="invalid-feedback">
+        Organization is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input id="name" type="text" formControlName="name" class="form-control"
+             [class.is-invalid]="helperForm.get('name')?.invalid && helperForm.get('name')?.touched">
+      <div *ngIf="helperForm.get('name')?.invalid && helperForm.get('name')?.touched" class="invalid-feedback">
+        Name is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="gender">Gender:</label>
+      <select id="gender" formControlName="gender" class="form-control"
+              [class.is-invalid]="helperForm.get('gender')?.invalid && helperForm.get('gender')?.touched">
+        <option value="" disabled>Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+      <div *ngIf="helperForm.get('gender')?.invalid && helperForm.get('gender')?.touched" class="invalid-feedback">
+        Gender is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone:</label>
+      <input id="phone" type="number" formControlName="phone" class="form-control"
+             [class.is-invalid]="helperForm.get('phone')?.invalid && helperForm.get('phone')?.touched">
+      <div *ngIf="helperForm.get('phone')?.invalid && helperForm.get('phone')?.touched" class="invalid-feedback">
+        <span *ngIf="helperForm.get('phone')?.errors?.['required']">Phone is required.</span>
+        <span *ngIf="helperForm.get('phone')?.errors?.['pattern']">Phone must be a 10-digit number.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input id="email" type="email" formControlName="email" class="form-control"
+             [class.is-invalid]="helperForm.get('email')?.invalid && helperForm.get('email')?.touched">
+      <div *ngIf="helperForm.get('email')?.invalid && helperForm.get('email')?.touched" class="invalid-feedback">
+        Please enter a valid email.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="vehicleType">Vehicle Type:</label>
+      <input id="vehicleType" type="text" formControlName="vehicleType" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="documentType">Document Type:</label>
+      <input id="documentType" type="text" formControlName="documentType" class="form-control"
+             [class.is-invalid]="helperForm.get('documentType')?.invalid && helperForm.get('documentType')?.touched">
+      <div *ngIf="helperForm.get('documentType')?.invalid && helperForm.get('documentType')?.touched" class="invalid-feedback">
+        Document Type is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="kycDocURL">KYC Document URL:</label>
+      <input id="kycDocURL" type="url" formControlName="kycDocURL" class="form-control"
+             [class.is-invalid]="helperForm.get('kycDocURL')?.invalid && helperForm.get('kycDocURL')?.touched">
+      <div *ngIf="helperForm.get('kycDocURL')?.invalid && helperForm.get('kycDocURL')?.touched" class="invalid-feedback">
+        <span *ngIf="helperForm.get('kycDocURL')?.errors?.['required']">KYC Document URL is required.</span>
+        <span *ngIf="helperForm.get('kycDocURL')?.errors?.['pattern']">Please enter a valid URL.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="photoURL">Photo URL:</label>
+      <input id="photoURL" type="url" formControlName="photoURL" class="form-control"
+             [class.is-invalid]="helperForm.get('photoURL')?.invalid && helperForm.get('photoURL')?.touched">
+      <div *ngIf="helperForm.get('photoURL')?.invalid && helperForm.get('photoURL')?.touched" class="invalid-feedback">
+        Please enter a valid URL.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Languages:</label>
+      <div class="language-checkboxes" [class.is-invalid]="languagesFormArray.invalid && helperForm.get('languages')?.touched">
+        <div *ngFor="let lang of availableLanguages" class="checkbox-item">
+          <input type="checkbox" [id]="lang" [value]="lang" (change)="onLanguageChange($event)"
+                 [checked]="isLanguageSelected(lang)">
+          <label [for]="lang">{{ lang }}</label>
+        </div>
+      </div>
+      <div *ngIf="languagesFormArray.invalid && helperForm.get('languages')?.touched" class="invalid-feedback">
+        At least one language is required.
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="helperForm.invalid">
+        {{ isEditMode ? 'Update Helper' : 'Add Helper' }}
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+    </div>
+  </form>
+</div>

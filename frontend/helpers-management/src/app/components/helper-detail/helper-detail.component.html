@@ -1,0 +1,64 @@
+<div class="helper-detail-container">
+  <ng-container *ngIf="helper; else noHelper">
+    <div class="header">
+      <div class="profile-summary">
+        <img [src]="helper.photoURL || 'https://placehold.co/150x150/E0E0E0/000000?text=No+Photo'"
+             alt="{{ helper.name }}'s photo" class="profile-photo"
+             onerror="this.onerror=null;this.src='https://placehold.co/150x150/E0E0E0/000000?text=No+Photo';">
+        <div class="name-service">
+          <h2>{{ helper.name }}</h2>
+          <p class="service-type">{{ helper.serviceType }} - {{ helper.organization }}</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-edit" (click)="editHelper()">Edit Helper</button>
+      </div>
+    </div>
+
+    <div class="details-grid">
+      <div class="detail-item">
+        <span class="label">Gender:</span>
+        <span class="value">{{ helper.gender }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Phone:</span>
+        <span class="value">{{ helper.phone }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Email:</span>
+        <span class="value">{{ helper.email || 'N/A' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Vehicle Type:</span>
+        <span class="value">{{ helper.vehicleType || 'N/A' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Document Type:</span>
+        <span class="value">{{ helper.documentType }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">KYC Document:</span>
+        <span class="value">
+          <a [href]="helper.kycDocURL" target="_blank" rel="noopener noreferrer" class="doc-link">View Document</a>
+        </span>
+      </div>
+      <div class="detail-item full-width">
+        <span class="label">Languages:</span>
+        <div class="languages-list">
+          <span *ngFor="let lang of helper.languages" class="language-tag">{{ lang }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn btn-back" (click)="goBack()">Back to List</button>
+    </div>
+  </ng-container>
+
+  <ng-template #noHelper>
+    <div class="no-helper-found">
+      <h3>Helper not found or an error occurred.</h3>
+      <button class="btn btn-back" (click)="goBack()">Back to List</button>
+    </div>
+  </ng-template>
+</div>

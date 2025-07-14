@@ -1,0 +1,15 @@
+:host {
+    display: block;
+    height: 100vh; /* Full viewport height */
+    width: 100vw;  /* Full viewport width */
+    overflow: hidden; /* Prevent body scroll if content fits */
+}
+main {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    align-items: flex-start; /* Align content to the top */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
