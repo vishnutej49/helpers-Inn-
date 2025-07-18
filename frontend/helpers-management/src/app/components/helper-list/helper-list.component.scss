@@ -1,6 +1,6 @@
 .helper-dashboard-container {
   display: flex;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 60px); 
   font-family: 'Inter', sans-serif;
   background-color: #f0f2f5;
   border-radius: 12px;
@@ -9,7 +9,7 @@
   margin: 20px; 
 
   .left-panel {
-    flex: 0 0 300px; 
+    flex: 0 0 300px;
     background-color: #ffffff;
     border-right: 1px solid #e0e0e0;
     padding: 1.5rem;
@@ -55,6 +55,77 @@
 
         svg {
           fill: white;
+        }
+      }
+    }
+
+    .filter-sort-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f0f0f0;
+
+      .search-input {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+        &:focus {
+          border-color: #007bff;
+          box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+          outline: none;
+        }
+      }
+
+      .sort-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+
+        .sort-dropdown {
+          flex-grow: 1;
+          padding: 0.8rem 1rem;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          font-size: 1rem;
+          background-color: white;
+          appearance: none;
+          background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%20viewBox%3D%220%200%20292.4%20292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%20197.1L159.9%2069.8c-4.8-4.8-12.5-4.8-17.3%200L5.4%20197.1c-4.8%204.8-4.8%2012.5%200%2017.3l23.2%2023.2c4.8%204.8%2012.5%204.8%2017.3%200l118.5-118.5c4.8-4.8%2012.5-4.8%2017.3%200l118.5%20118.5c4.8%204.8%2012.5%204.8%2017.3%200l23.2-23.2c4.7-4.8%204.7-12.5%200-17.3z%22%2F%3E%3C%2Fsvg%3E');
+          background-repeat: no-repeat;
+          background-position: right 0.8rem center;
+          background-size: 12px;
+          padding-right: 2.5rem;
+          cursor: pointer;
+        }
+
+        .btn-sort-order {
+          background-color: #f0f0f0;
+          color: #333;
+          padding: 0.8rem;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 44px; 
+          height: 44px; 
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+
+          &:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          }
+
+          svg {
+            stroke: #333;
+            stroke-width: 2;
+          }
         }
       }
     }
@@ -179,6 +250,16 @@
   .left-panel .btn-add-new {
     width: 100%;
     justify-content: center;
+  }
+
+  .filter-sort-controls {
+    flex-direction: column;
+    .sort-controls {
+      flex-direction: row;
+      .sort-dropdown {
+        flex-grow: 1;
+      }
+    }
   }
 
   .helper-list-item {

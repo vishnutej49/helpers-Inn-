@@ -12,6 +12,7 @@
       </div>
       <div class="actions">
         <button class="btn btn-edit" (click)="editHelper()">Edit Helper</button>
+        <button class="btn btn-delete" (click)="confirmDelete()">Delete Helper</button>
       </div>
     </div>
 
@@ -61,4 +62,16 @@
       <button class="btn btn-back" (click)="goBack()">Back to List</button>
     </div>
   </ng-template>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm">
+  <div class="modal-content">
+    <h3>Confirm Deletion</h3>
+    <p>Are you sure you want to delete <strong>{{ helper?.name }}</strong>? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+      <button class="btn btn-danger" (click)="executeDelete()">Delete</button>
+    </div>
+  </div>
 </div>

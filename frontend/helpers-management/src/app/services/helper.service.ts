@@ -40,4 +40,9 @@ export class HelperService {
   updateHelper(id: string, helper: Helper): Observable<Helper> {
     return this.http.put<Helper>(`${this.baseURL}/${id}`, helper);
   }
+
+  //delete an existing helper
+  deleteHelper(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseURL}/${id}`);
+  }
 }

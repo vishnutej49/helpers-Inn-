@@ -10,11 +10,33 @@
       </button>
     </div>
 
+    <div class="filter-sort-controls">
+      <input type="text" [(ngModel)]="searchTerm" (input)="applyFiltersAndSort()" placeholder="Search helpers..." class="search-input">
+
+      <div class="sort-controls">
+        <select [(ngModel)]="sortKey" (change)="applyFiltersAndSort()" class="sort-dropdown">
+          <option value="name">Sort by Name</option>
+          <option value="serviceType">Sort by Service Type</option>
+          <option value="organization">Sort by Organization</option>
+          <option value="id">Sort by ID</option>
+          <option value="phone">Sort by Phone</option>
+        </select>
+        <button class="btn btn-sort-order" (click)="toggleSortOrder()">
+          <svg *ngIf="sortOrder === 'asc'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px">
+            <path d="M12 20L12 4M12 4L18 10M12 4L6 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg *ngIf="sortOrder === 'desc'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px">
+            <path d="M12 4L12 20M12 20L18 14M12 20L6 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <ul class="helper-list">
-      <li *ngIf="helpers.length === 0" class="no-helpers-message">
-        No helpers found. Click "Add New" to create one!
+      <li *ngIf="filteredHelpers.length === 0" class="no-helpers-message">
+        No helpers found matching your criteria.
       </li>
-      <li *ngFor="let helper of helpers"
+      <li *ngFor="let helper of filteredHelpers"
           [class.selected]="helper._id === selectedHelperId"
           [routerLink]="['/helpers', helper._id]"
           class="helper-list-item">

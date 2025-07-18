@@ -15,6 +15,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class HelperDetailComponent implements OnInit, OnDestroy {
   helper: Helper | undefined;
+  showDeleteConfirm: boolean = false; 
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -24,21 +25,17 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    // get the helper ID
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.loadHelperDetails(id);
       } else {
-        //no ID is provided
         this.router.navigate(['/helpers']);
       }
     });
   }
 
-  
-  // Loads the details of a specific helper.
-  // @param id The ID of the helper to load.
+
   loadHelperDetails(id: string): void {
     this.helperService.getHelperById(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (helper: Helper) => {
@@ -46,20 +43,43 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error fetching helper details:', err);
-        this.helper = undefined; 
-        this.router.navigate(['/helpers']); 
+        this.helper = undefined;
+        this.router.navigate(['/helpers']);
       }
     });
   }
 
-  // Navigates to the edit page for the current helper.
+
   editHelper(): void {
     if (this.helper?._id) {
       this.router.navigate(['/helpers/edit', this.helper._id]);
     }
   }
 
-  // Navigates back to the main helper list.
+  confirmDelete(): void {
+    this.showDeleteConfirm = true;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm = false;
+  }
+
+  executeDelete(): void {
+    if (this.helper?._id) {
+      this.helperService.deleteHelper(this.helper._id).pipe(takeUntil(this.destroy$)).subscribe({
+        next: () => {
+          console.log('Helper deleted successfully!');
+          this.showDeleteConfirm = false;
+          this.router.navigate(['/helpers']); 
+        },
+        error: (err) => {
+          console.error('Error deleting helper:', err);
+          this.showDeleteConfirm = false; 
+        }
+      });
+    }
+  }
+
   goBack(): void {
     this.router.navigate(['/helpers']);
   }
