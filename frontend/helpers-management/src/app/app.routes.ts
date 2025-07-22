@@ -1,23 +1,19 @@
-// src/app/app.routes.ts
 import { Routes } from '@angular/router';
-import { HelperListComponent } from './components/helper-list/helper-list.component';
-import { HelperDetailComponent } from './components/helper-detail/helper-detail.component';
-import { HelperFormComponent } from './components/helper-form/helper-form.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'helpers', pathMatch: 'full' },
 
   {
     path: 'helpers',
-    component: HelperListComponent,
+    loadComponent : ()=>import('./components/helper-list/helper-list.component').then(m=>m.HelperListComponent),
     children: [
       { path: '', redirectTo: 'new', pathMatch: 'full' },
 
-      { path: 'new', component: HelperFormComponent },
+      { path: 'new', loadComponent:()=>import('./components/helper-form/helper-form.component').then(m=>m.HelperFormComponent) },
 
-      { path: ':id', component: HelperDetailComponent },
+      { path: ':id', loadComponent : ()=>import('./components/helper-detail/helper-detail.component').then(m=>m.HelperDetailComponent)},
 
-      { path: 'edit/:id', component: HelperFormComponent }
+      { path: 'edit/:id', loadComponent:()=>import('./components/helper-form/helper-form.component').then(m=>m.HelperFormComponent) }
     ]
   },
 
