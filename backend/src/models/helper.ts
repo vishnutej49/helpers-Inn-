@@ -3,13 +3,14 @@ import mongoose from 'mongoose';
 const helperSchema = new mongoose.Schema({
   serviceType: { type: String, required: true },
   organization: { type: String, required: true },
-  name: { type: String, required: true },
+  fullName: { type: String, required: true },
   gender: { type: String, required: true },
-  phone: { type: Number, required: true },
+  phno: { type: Number, required: true },
   email: String,
   vehicleType: String,
-  documentType: { type: String, required: true },
-  kycDocURL: { type: String, required: true },
+  vehicleNumber: String,
+  docType: { type: String, required: true },
+  kycdoc: { type: String},
   photoURL: String,
   languages: {
     type: [String],
@@ -20,7 +21,9 @@ const helperSchema = new mongoose.Schema({
       },
       message: 'At least one language is required.'
     }
-  }
+  },
+  employeeCode: { type: String, unique: true, required: true },
+  joinedOn: { type: Date, default: Date.now }
 });
 
 export const Helper = mongoose.model('Helper', helperSchema);
