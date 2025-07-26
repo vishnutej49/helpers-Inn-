@@ -1,119 +1,202 @@
 <div class="helper-form-container">
   <h2>{{ isEditMode ? 'Edit Helper' : 'Add New Helper' }}</h2>
 
-  <form [formGroup]="helperForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="helperForm" (ngSubmit)="showPreview()">
     <div class="form-group">
-      <label for="serviceType">Service Type:</label>
-      <input id="serviceType" type="text" formControlName="serviceType" class="form-control"
-             [class.is-invalid]="helperForm.get('serviceType')?.invalid && helperForm.get('serviceType')?.touched">
-      <div *ngIf="helperForm.get('serviceType')?.invalid && helperForm.get('serviceType')?.touched" class="invalid-feedback">
-        Service Type is required.
-      </div>
+      <label for="employeeCode">Employee ID:</label>
+      <input id="employeeCode" type="text" formControlName="employeeCode" class="form-control" readonly>
     </div>
 
     <div class="form-group">
-      <label for="organization">Organization:</label>
-      <input id="organization" type="text" formControlName="organization" class="form-control"
-             [class.is-invalid]="helperForm.get('organization')?.invalid && helperForm.get('organization')?.touched">
-      <div *ngIf="helperForm.get('organization')?.invalid && helperForm.get('organization')?.touched" class="invalid-feedback">
-        Organization is required.
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="name">Name:</label>
-      <input id="name" type="text" formControlName="name" class="form-control"
-             [class.is-invalid]="helperForm.get('name')?.invalid && helperForm.get('name')?.touched">
-      <div *ngIf="helperForm.get('name')?.invalid && helperForm.get('name')?.touched" class="invalid-feedback">
-        Name is required.
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="gender">Gender:</label>
-      <select id="gender" formControlName="gender" class="form-control"
-              [class.is-invalid]="helperForm.get('gender')?.invalid && helperForm.get('gender')?.touched">
-        <option value="" disabled>Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
+      <label for="serviceType">Type of Service*</label>
+      <select formControlName="serviceType" id="serviceType" class="form-control"
+              [class.is-invalid]="isValid('serviceType')">
+        <option value="" disabled selected>Select Service Type</option>
+        <option *ngFor="let service of serviceTypes" [value]="service">{{service}}</option>
       </select>
-      <div *ngIf="helperForm.get('gender')?.invalid && helperForm.get('gender')?.touched" class="invalid-feedback">
-        Gender is required.
-      </div>
+      <div *ngIf="isValid('serviceType')" class="invalid-feedback">Select a Type of Service</div>
     </div>
 
     <div class="form-group">
-      <label for="phone">Phone:</label>
-      <input id="phone" type="number" formControlName="phone" class="form-control"
-             [class.is-invalid]="helperForm.get('phone')?.invalid && helperForm.get('phone')?.touched">
-      <div *ngIf="helperForm.get('phone')?.invalid && helperForm.get('phone')?.touched" class="invalid-feedback">
-        <span *ngIf="helperForm.get('phone')?.errors?.['required']">Phone is required.</span>
-        <span *ngIf="helperForm.get('phone')?.errors?.['pattern']">Phone must be a 10-digit number.</span>
-      </div>
+      <label for="organization">Organization*</label>
+      <select formControlName="organization" id="organization" class="form-control"
+              [class.is-invalid]="isValid('organization')">
+        <option value="" disabled selected>Select Organization</option>
+        <option *ngFor="let org of organizations" [value]="org">{{org}}</option>
+      </select>
+      <div *ngIf="isValid('organization')" class="invalid-feedback">Select an Organization</div>
     </div>
 
     <div class="form-group">
-      <label for="email">Email:</label>
+      <label for="fullName">Full Name*</label>
+      <input id="fullName" type="text" formControlName="fullName" class="form-control"
+             [class.is-invalid]="isValid('fullName')">
+      <div *ngIf="isValid('fullName')" class="invalid-feedback">Enter full name</div>
+    </div>
+
+    <div class="form-group">
+      <label>Languages*</label>
+      <div class="languages-dropdown-container">
+        <div class="dropdown-header" [class.is-invalid]="isValid('languages')" tabindex="0">
+          <span>Select Languages</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="dropdown-content">
+          <label *ngFor="let language of availableLanguages" class="checkbox-item">
+            <input type="checkbox" [value]="language" (change)="onChangeLanguage($event)"
+                   [checked]="isLanguageSelected(language)">
+            {{language}}
+          </label>
+        </div>
+      </div>
+      <div *ngIf="isValid('languages')" class="invalid-feedback">Select at least 2 languages</div>
+    </div>
+
+    <div class="form-group">
+      <label>Gender*</label>
+      <div class="radio-group" [class.is-invalid]="isValid('gender')">
+        <label *ngFor="let genderOption of genders" class="radio-item">
+          <input type="radio" [value]="genderOption" formControlName="gender">
+          {{genderOption}}
+        </label>
+      </div>
+      <div *ngIf="isValid('gender')" class="invalid-feedback">Gender is required</div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">E-mail</label>
       <input id="email" type="email" formControlName="email" class="form-control"
-             [class.is-invalid]="helperForm.get('email')?.invalid && helperForm.get('email')?.touched">
-      <div *ngIf="helperForm.get('email')?.invalid && helperForm.get('email')?.touched" class="invalid-feedback">
-        Please enter a valid email.
-      </div>
+             [class.is-invalid]="isValid('email')">
+      <div *ngIf="isValid('email')" class="invalid-feedback">Enter valid E-mail</div>
+    </div>
+
+    <div class="form-group">
+      <label for="phno">Phone Number*</label>
+      <input id="phno" type="tel" formControlName="phno" class="form-control"
+             [class.is-invalid]="isValid('phno')">
+      <div *ngIf="isValid('phno')" class="invalid-feedback">Enter a valid 10-digit Phone Number</div>
     </div>
 
     <div class="form-group">
       <label for="vehicleType">Vehicle Type:</label>
-      <input id="vehicleType" type="text" formControlName="vehicleType" class="form-control">
+      <select formControlName="vehicleType" id="vehicleType" class="form-control">
+        <option *ngFor="let type of vehicleTypes" [value]="type">{{type}}</option>
+      </select>
+    </div>
+
+    <div class="form-group" *ngIf="helperForm.get('vehicleType')?.value && helperForm.get('vehicleType')?.value !== 'None'">
+      <label for="vehicleNumber">Vehicle Number*</label>
+      <input id="vehicleNumber" type="text" formControlName="vehicleNumber" class="form-control"
+             [class.is-invalid]="isValid('vehicleNumber')">
+      <div *ngIf="isValid('vehicleNumber')" class="invalid-feedback">Vehicle Number is required if Vehicle Type is selected.</div>
     </div>
 
     <div class="form-group">
-      <label for="documentType">Document Type:</label>
-      <input id="documentType" type="text" formControlName="documentType" class="form-control"
-             [class.is-invalid]="helperForm.get('documentType')?.invalid && helperForm.get('documentType')?.touched">
-      <div *ngIf="helperForm.get('documentType')?.invalid && helperForm.get('documentType')?.touched" class="invalid-feedback">
-        Document Type is required.
-      </div>
+      <label for="docType">Document Type*</label>
+      <select formControlName="docType" id="docType" class="form-control"
+              [class.is-invalid]="isValid('docType')">
+        <option value="" disabled selected>Select Document Type</option>
+        <option *ngFor="let type of docTypes" [value]="type">{{type}}</option>
+      </select>
+      <div *ngIf="isValid('docType')" class="invalid-feedback">Document Type is required.</div>
     </div>
 
     <div class="form-group">
-      <label for="kycDocURL">KYC Document URL:</label>
-      <input id="kycDocURL" type="url" formControlName="kycDocURL" class="form-control"
-             [class.is-invalid]="helperForm.get('kycDocURL')?.invalid && helperForm.get('kycDocURL')?.touched">
-      <div *ngIf="helperForm.get('kycDocURL')?.invalid && helperForm.get('kycDocURL')?.touched" class="invalid-feedback">
-        <span *ngIf="helperForm.get('kycDocURL')?.errors?.['required']">KYC Document URL is required.</span>
-        <span *ngIf="helperForm.get('kycDocURL')?.errors?.['pattern']">Please enter a valid URL.</span>
+      <label for="kycdoc">KYC Document*</label>
+      <input id="kycdoc" type="file" (change)="onKycSelected($event)" class="form-control file-input"
+             [class.is-invalid]="isValid('kycdoc')">
+      <div class="file-preview" *ngIf="kycPreviewUrl">
+        <img *ngIf="isImageFile(kycPreviewUrl)" [src]="kycPreviewUrl" alt="KYC Preview" class="img-preview">
+        <span *ngIf="!isImageFile(kycPreviewUrl)" class="file-name-preview">
+          {{ selectedKycFile?.name || 'Document selected' }}
+          <a *ngIf="isDataUrlFile(kycPreviewUrl)" [href]="kycPreviewUrl" target="_blank" rel="noopener noreferrer">View</a>
+        </span>
       </div>
+      <div *ngIf="isValid('kycdoc')" class="invalid-feedback">KYC Document is required.</div>
     </div>
 
     <div class="form-group">
-      <label for="photoURL">Photo URL:</label>
-      <input id="photoURL" type="url" formControlName="photoURL" class="form-control"
-             [class.is-invalid]="helperForm.get('photoURL')?.invalid && helperForm.get('photoURL')?.touched">
-      <div *ngIf="helperForm.get('photoURL')?.invalid && helperForm.get('photoURL')?.touched" class="invalid-feedback">
-        Please enter a valid URL.
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Languages:</label>
-      <div class="language-checkboxes" [class.is-invalid]="languagesFormArray.invalid && helperForm.get('languages')?.touched">
-        <div *ngFor="let lang of availableLanguages" class="checkbox-item">
-          <input type="checkbox" [id]="lang" [value]="lang" (change)="onLanguageChange($event)"
-                 [checked]="isLanguageSelected(lang)">
-          <label [for]="lang">{{ lang }}</label>
-        </div>
-      </div>
-      <div *ngIf="languagesFormArray.invalid && helperForm.get('languages')?.touched" class="invalid-feedback">
-        At least one language is required.
+      <label for="photoURL">Profile Photo</label>
+      <input id="photoURL" type="file" (change)="onPhotoSelected($event)" class="form-control file-input">
+      <div class="file-preview" *ngIf="photoPreviewUrl">
+        <img *ngIf="isImageFile(photoPreviewUrl)" [src]="photoPreviewUrl" alt="Photo Preview" class="img-preview">
       </div>
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary" [disabled]="helperForm.invalid">
-        {{ isEditMode ? 'Update Helper' : 'Add Helper' }}
-      </button>
       <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="helperForm.invalid || isLoading">
+        {{ isEditMode ? 'Update Helper' : 'Add Helper' }}
+        <span *ngIf="isLoading" class="spinner"></span>
+      </button>
     </div>
   </form>
+
+  <div class="modal-overlay" *ngIf="showPreviewModal">
+    <div class="modal-content preview-modal">
+      <h3>Preview Helper Details</h3>
+      <div class="preview-section">
+        <div class="preview-item">
+          <strong>Employee ID:</strong> {{ previewData?.employeeCode }}
+        </div>
+      </div>
+
+      <div class="preview-section">
+        <h4>Personal Details</h4>
+        <div class="preview-item">
+          <strong>Full Name:</strong> {{ previewData?.fullName }}
+        </div>
+        <div class="preview-item">
+          <strong>Languages:</strong> {{ previewData?.languages?.join(', ') }}
+        </div>
+        <div class="preview-item">
+          <strong>Phone Number:</strong> {{ previewData?.phno }}
+        </div>
+        <div class="preview-item">
+          <strong>E-mail:</strong> {{ previewData?.email || 'N/A' }}
+        </div>
+        <div class="preview-item">
+          <strong>Gender:</strong> {{ previewData?.gender }}
+        </div>
+        <div class="preview-item file-preview-container">
+          <strong>KYC Document:</strong>
+          <img *ngIf="previewData?.kycdoc && isImageFile(previewData?.kycdoc)" [src]="previewData?.kycdoc" alt="KYC Preview" class="img-preview-small">
+          <span *ngIf="previewData?.kycdoc && !isImageFile(previewData?.kycdoc)">Document selected <a [href]="previewData?.kycdoc" target="_blank" rel="noopener noreferrer">View</a></span>
+          <span *ngIf="!previewData?.kycdoc">No KYC document selected</span>
+        </div>
+        <div class="preview-item file-preview-container">
+          <strong>Profile Photo:</strong>
+          <img *ngIf="previewData?.photoURL && isImageFile(previewData?.photoURL)" [src]="previewData?.photoURL" alt="Profile Photo Preview" class="img-preview-small profile-photo-preview">
+          <span *ngIf="!previewData?.photoURL">No photo selected</span>
+        </div>
+      </div>
+
+      <div class="preview-section">
+        <h4>Service Details</h4>
+        <div class="preview-item">
+          <strong>Type of Service:</strong> {{ previewData?.serviceType }}
+        </div>
+        <div class="preview-item">
+          <strong>Organization:</strong> {{ previewData?.organization }}
+        </div>
+        <div class="preview-item">
+          <strong>Vehicle Type:</strong> {{ previewData?.vehicleType || 'N/A' }}
+        </div>
+        <div class="preview-item" *ngIf="previewData?.vehicleType && previewData?.vehicleType !== 'None'">
+          <strong>Vehicle Number:</strong> {{ previewData?.vehicleNumber || 'N/A' }}
+        </div>
+        <div class="preview-item">
+          <strong>Joined On:</strong> {{ previewData?.joinedOn || 'N/A' }}
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" (click)="cancelPreview()">Edit</button>
+        <button class="btn btn-primary" (click)="confirmSubmit()" [disabled]="isLoading">
+          Confirm & Submit
+          <span *ngIf="isLoading" class="spinner"></span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

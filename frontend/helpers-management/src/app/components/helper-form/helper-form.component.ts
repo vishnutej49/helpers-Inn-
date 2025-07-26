@@ -5,8 +5,8 @@ import { HelperService } from '../../services/helper.service';
 import { Helper } from '../../models/helper.model';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, Observable } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-helper-form',
@@ -19,7 +19,24 @@ export class HelperFormComponent implements OnInit, OnDestroy {
   helperForm!: FormGroup;
   isEditMode: boolean = false;
   helperId: string | null = null;
-  availableLanguages: string[] = ['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Hindi', 'Bengali', 'Tamil', 'Telugu', 'Kannada', 'Malayalam'];
+  isSubmitted: boolean = false;
+  isLoading: boolean = false;
+
+  showPreviewModal: boolean = false;
+  previewData: Helper | null = null;
+
+  selectedPhotoFile: File | null = null;
+  selectedKycFile: File | null = null;
+  photoPreviewUrl: string | ArrayBuffer | null = null;
+  kycPreviewUrl: string | ArrayBuffer | null = null;
+
+  serviceTypes: string[] = ['Cook', 'Driver', 'Cleaner'];
+  organizations: string[] = ['ASBL', 'Inncircles'];
+  availableLanguages: string[] = ['Telugu', 'Hindi', 'English'];
+  genders: string[] = ['Male', 'Female', 'Others'];
+  vehicleTypes: string[] = ['Bike', 'Car', 'Scooter', 'Van', 'None'];
+  docTypes: string[] = ['Aadhar', 'Passport', 'Driving License', 'Voter ID'];
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -39,108 +56,220 @@ export class HelperFormComponent implements OnInit, OnDestroy {
       } else {
         this.isEditMode = false;
         this.helperForm.reset();
-        this.setLanguages([]); 
+        this.allLanguages.clear();
+        this.photoPreviewUrl = null;
+        this.kycPreviewUrl = null;
+        this.selectedPhotoFile = null;
+        this.selectedKycFile = null;
       }
+    });
+
+    this.helperForm.get('vehicleType')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(value => {
+      const vehicleNumberControl = this.helperForm.get('vehicleNumber');
+      if (value && value !== 'None' && vehicleNumberControl) {
+        vehicleNumberControl.setValidators(Validators.required);
+      } else if (vehicleNumberControl) {
+        vehicleNumberControl.clearValidators();
+      }
+      vehicleNumberControl?.updateValueAndValidity();
     });
   }
 
   initForm(): void {
     this.helperForm = this.fb.group({
+      employeeCode: [{ value: '', disabled: true }],
       serviceType: ['', Validators.required],
       organization: ['', Validators.required],
-      name: ['', Validators.required],
+      fullName: ['', Validators.required],
+      languages: this.fb.array([], Validators.minLength(2)),
       gender: ['', Validators.required],
-      phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]], 
       email: ['', [Validators.email]],
-      vehicleType: [''],
-      documentType: ['', Validators.required],
-      kycDocURL: ['', [Validators.required, Validators.pattern(/^(http|https):\/\/[^ "]+$/)]],
-      photoURL: ['', [Validators.pattern(/^(http|https):\/\/[^ "]+$/)]], 
-      languages: this.fb.array([], Validators.required) 
+      phno: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      vehicleType: ['None'],
+      vehicleNumber: [''],
+      docType: ['', Validators.required],
+      kycdoc: [null],
+      photoURL: [null]
     });
   }
-  
-  // Loads helper data into the form when in edit mode.
-  // @param id The ID of the helper to load.
+
   loadHelperData(id: string): void {
-    this.helperService.getHelperById(id).pipe(takeUntil(this.destroy$)).subscribe({
+    this.isLoading = true;
+    this.helperService.getHelperById(id).pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    ).subscribe({
       next: (helper: Helper) => {
-        this.helperForm.patchValue(helper);
+        this.helperForm.patchValue({
+          employeeCode: helper.employeeCode,
+          serviceType: helper.serviceType,
+          organization: helper.organization,
+          fullName: helper.fullName,
+          gender: helper.gender,
+          phno: helper.phno,
+          email: helper.email,
+          vehicleType: helper.vehicleType,
+          vehicleNumber: helper.vehicleNumber,
+          docType: helper.docType,
+          kycdoc: helper.kycdoc,
+          photoURL: helper.photoURL
+        });
         this.setLanguages(helper.languages);
+        this.photoPreviewUrl = helper.photoURL || null;
+        this.kycPreviewUrl = helper.kycdoc || null;
       },
       error: (err) => {
         console.error('Error loading helper:', err);
-        this.router.navigate(['/helpers']); 
+        this.router.navigate(['/helpers']);
       }
     });
   }
 
-  get languagesFormArray(): FormArray {
+  get allLanguages(): FormArray {
     return this.helperForm.get('languages') as FormArray;
   }
 
-  // Adds or removes a language from the FormArray based on checkbox state.
-  // @param event The change event from the checkbox.
-  onLanguageChange(event: Event): void {
-    const checkbox = event.target as HTMLInputElement;
-    const language = checkbox.value;
-
-    if (checkbox.checked) {
-      this.languagesFormArray.push(new FormControl(language));
+  onChangeLanguage(event: any): void {
+    const checked = event.target.checked;
+    const value = event.target.value;
+    if (checked) {
+      this.allLanguages.push(new FormControl(value));
     } else {
-      const index = this.languagesFormArray.controls.findIndex(control => control.value === language);
-      if (index >= 0) {
-        this.languagesFormArray.removeAt(index);
+      const inx = this.allLanguages.controls.findIndex(x => x.value === value);
+      if (inx >= 0) {
+        this.allLanguages.removeAt(inx);
       }
     }
   }
 
-
   setLanguages(languages: string[]): void {
-    this.languagesFormArray.clear();
+    this.allLanguages.clear();
     languages.forEach(lang => {
-      this.languagesFormArray.push(new FormControl(lang));
+      this.allLanguages.push(new FormControl(lang));
     });
   }
 
   isLanguageSelected(language: string): boolean {
-    return this.languagesFormArray.controls.some(control => control.value === language);
+    return this.allLanguages.controls.some(control => control.value === language);
   }
 
-  //Same for both creat and update
-  onSubmit(): void {
+  isValid(field: string): boolean {
+    const control = this.helperForm.get(field)
+    if (field === 'languages') {
+      return (control?.invalid && (this.isSubmitted || control?.touched || control?.dirty)) || false;
+    }
+    return (control?.invalid && (this.isSubmitted || control?.touched)) || false;
+  }
+
+  isImageFile(url: string | ArrayBuffer | null | undefined): boolean {
+    if (typeof url !== 'string' || !url) {
+      return false;
+    }
+    return url.startsWith('data:image/') || /\.(jpeg|jpg|gif|png|webp)$/i.test(url);
+  }
+
+  isDataUrlFile(url: string | ArrayBuffer | null): boolean {
+    if (typeof url !== 'string' || !url) {
+      return false;
+    }
+    return url.startsWith('data:');
+  }
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedPhotoFile = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.photoPreviewUrl = reader.result;
+      };
+      reader.readAsDataURL(this.selectedPhotoFile);
+    } else {
+      this.selectedPhotoFile = null;
+      this.photoPreviewUrl = null;
+    }
+    this.helperForm.get('photoURL')?.markAsTouched();
+    this.helperForm.get('photoURL')?.markAsDirty();
+  }
+
+  onKycSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedKycFile = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.kycPreviewUrl = reader.result;
+      };
+      reader.readAsDataURL(this.selectedKycFile);
+    } else {
+      this.selectedKycFile = null;
+      this.kycPreviewUrl = null;
+    }
+    this.helperForm.get('kycdoc')?.markAsTouched();
+    this.helperForm.get('kycdoc')?.markAsDirty();
+  }
+
+  showPreview(): void {
+    this.isSubmitted = true;
     if (this.helperForm.invalid) {
-      this.helperForm.markAllAsTouched(); 
       console.error('Form is invalid. Please check the fields.');
+      this.helperForm.markAllAsTouched();
       return;
     }
 
-    const helperData: Helper = this.helperForm.value;
-
-    if (this.isEditMode && this.helperId) {
-      this.helperService.updateHelper(this.helperId, helperData).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => {
-          console.log('Helper updated successfully!', res);
-          this.router.navigate(['/helpers', this.helperId]); 
-        },
-        error: (err) => {
-          console.error('Error updating helper:', err);
-        }
-      });
-    } else {
-      this.helperService.createHelper(helperData).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => {
-          console.log('Helper created successfully!', res);
-          this.router.navigate(['/helpers', res._id]); 
-        },
-        error: (err) => {
-          console.error('Error creating helper:', err);
-        }
-      });
+    this.previewData = { ...this.helperForm.getRawValue() };
+    if (this.selectedPhotoFile && this.photoPreviewUrl && this.previewData) {
+      this.previewData.photoURL = this.photoPreviewUrl as string;
     }
+    if (this.selectedKycFile && this.kycPreviewUrl && this.previewData) {
+      this.previewData.kycdoc = this.kycPreviewUrl as string;
+    }
+
+    this.showPreviewModal = true;
   }
 
-  
+  confirmSubmit(): void {
+    this.showPreviewModal = false;
+    this.onSubmit();
+  }
+
+  cancelPreview(): void {
+    this.showPreviewModal = false;
+    this.previewData = null;
+  }
+
+  onSubmit(): void {
+    if (this.helperForm.invalid) {
+      console.error('Form is invalid during final submission.');
+      this.isSubmitted = true;
+      this.helperForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading = true;
+    const helperData: Helper = this.helperForm.getRawValue();
+
+    let operation: Observable<Helper>;
+    if (this.isEditMode && this.helperId) {
+      operation = this.helperService.updateHelper(this.helperId, helperData, this.selectedPhotoFile, this.selectedKycFile);
+    } else {
+      operation = this.helperService.createHelper(helperData, this.selectedPhotoFile, this.selectedKycFile);
+    }
+
+    operation.pipe(
+      takeUntil(this.destroy$),
+      finalize(() => this.isLoading = false)
+    ).subscribe({
+      next: (res) => {
+        console.log('Helper operation successful!', res);
+        this.router.navigate(['/helpers', res._id]);
+      },
+      error: (err) => {
+        console.error('Error during helper operation:', err);
+      }
+    });
+  }
+
   onCancel(): void {
     if (this.isEditMode && this.helperId) {
       this.router.navigate(['/helpers', this.helperId]);
@@ -154,4 +283,3 @@ export class HelperFormComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 }
-
