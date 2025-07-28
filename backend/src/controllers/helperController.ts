@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Helper } from '../models/helper';
 import AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
+import { log } from 'console';
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -29,7 +30,8 @@ export const createHelper = async (req: Request, res: Response): Promise<void> =
     const kycDocFile = files?.kycdoc ? files.kycdoc[0] : undefined;
     let photoURL: string | undefined;
     let kycdoc: string | undefined;
-    
+    // console.log(req);
+    // console.log("files"+files+" "+photoFile+" "+kycDocFile);
     if (photoFile) {
       const photoUploadParams = {
         Bucket: S3_BUCKET_NAME!,
@@ -40,7 +42,8 @@ export const createHelper = async (req: Request, res: Response): Promise<void> =
       };
       const photoUploadResult = await s3.upload(photoUploadParams).promise();
       photoURL = photoUploadResult.Location;
-      console.log(photoURL);
+      console.log(typeof photoURL)
+      console.log(photoURL+" "+(typeof photoURL))
     }
 
     if (kycDocFile) {
@@ -53,8 +56,8 @@ export const createHelper = async (req: Request, res: Response): Promise<void> =
       };
       const kycUploadResult = await s3.upload(kycUploadParams).promise();
       kycdoc = kycUploadResult.Location;
+      console.log(kycdoc+" "+(typeof kycdoc));
     }
-
     const lastHelper = await Helper.findOne().sort({ employeeCode: -1 });
     let nextEmployeeCode = 10000;
     if (lastHelper && lastHelper.employeeCode) {
@@ -65,8 +68,26 @@ export const createHelper = async (req: Request, res: Response): Promise<void> =
     }
     const employeeCode = nextEmployeeCode.toString().padStart(5, '0');
 
+    const parsedLanguages = (() => {
+    if (Array.isArray(req.body.languages)) return req.body.languages;
+      try {
+        return JSON.parse(req.body.languages);
+      } catch {
+        return [];
+      }
+    })();
+
     const newHelper = new Helper({
-      ...req.body,
+      serviceType: req.body.serviceType,
+      organization: req.body.organization,
+      fullName: req.body.fullName,
+      gender: req.body.gender,
+      phno: Number(req.body.phno),
+      email: req.body.email,
+      vehicleType: req.body.vehicleType,
+      vehicleNumber: req.body.vehicleNumber,
+      docType: req.body.docType,
+      languages: parsedLanguages,
       photoURL,
       kycdoc,
       employeeCode,

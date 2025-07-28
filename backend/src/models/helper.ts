@@ -10,7 +10,7 @@ const helperSchema = new mongoose.Schema({
   vehicleType: String,
   vehicleNumber: String,
   docType: { type: String, required: true },
-  kycdoc: { type: String},
+  kycdoc:  String,
   photoURL: String,
   languages: {
     type: [String],
