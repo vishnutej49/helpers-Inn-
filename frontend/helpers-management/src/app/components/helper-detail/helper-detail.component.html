@@ -3,75 +3,136 @@
     <div class="header">
       <div class="profile-summary">
         <img [src]="helper.photoURL || 'https://placehold.co/150x150/E0E0E0/000000?text=No+Photo'"
-             alt="{{ helper.name }}'s photo" class="profile-photo"
+             alt="{{ helper.fullName }}'s photo" class="profile-photo"
              onerror="this.onerror=null;this.src='https://placehold.co/150x150/E0E0E0/000000?text=No+Photo';">
         <div class="name-service">
-          <h2>{{ helper.name }}</h2>
+          <h2>{{ helper.fullName }}</h2>
           <p class="service-type">{{ helper.serviceType }} - {{ helper.organization }}</p>
         </div>
       </div>
       <div class="actions">
-        <button class="btn btn-edit" (click)="editHelper()">Edit Helper</button>
-        <button class="btn btn-delete" (click)="confirmDelete()">Delete Helper</button>
+        <!-- <button mat-icon-button color="primary" (click)="editHelper()" class="action-btn">
+          <mat-icon svgIcon="edit-icon"></mat-icon>
+          Edit
+        </button>
+        <button mat-icon-button color="warn" (click)="confirmDelete()" class="action-btn">
+          <mat-icon svgIcon="delete-icon"></mat-icon>
+          Delete
+        </button> -->
+        <!-- Edit Button -->
+        <button mat-icon-button  (click)="editHelper()" class="action-btn" aria-label="Edit">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
+          </svg>
+          Edit
+        </button>
+
+        <!-- Delete Button -->
+        <button mat-icon-button  (click)="confirmDelete()" class="action-btn" aria-label="Delete">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+          </svg>
+          Delete
+        </button>
+
       </div>
     </div>
 
-    <div class="details-grid">
-      <div class="detail-item">
-        <span class="label">Gender:</span>
-        <span class="value">{{ helper.gender }}</span>
+    <div class="details-sections">
+      <div class="detail-section">
+        <h3>Employee ID</h3>
+        <div class="detail-item">
+          <span class="label">Code:</span>
+          <span class="value">{{ helper.employeeCode || 'N/A' }}</span>
+        </div>
       </div>
-      <div class="detail-item">
-        <span class="label">Phone:</span>
-        <span class="value">{{ helper.phone }}</span>
+
+      <div class="detail-section">
+        <h3>Personal Details</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="label">Full Name:</span>
+            <span class="value">{{ helper.fullName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Gender:</span>
+            <span class="value">{{ helper.gender }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Phone Number:</span>
+            <span class="value">{{ helper.phno }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">E-mail:</span>
+            <span class="value">{{ helper.email || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Document Type:</span>
+            <span class="value">{{ helper.docType }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">KYC Document:</span>
+            <span class="value">
+              <a [href]="helper.kycdoc" target="_blank" rel="noopener noreferrer" class="doc-link">View Document</a>
+            </span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="label">Languages:</span>
+            <div class="languages-list">
+              <span *ngFor="let lang of helper.languages" class="language-tag">{{ lang }}</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="detail-item">
-        <span class="label">Email:</span>
-        <span class="value">{{ helper.email || 'N/A' }}</span>
-      </div>
-      <div class="detail-item">
-        <span class="label">Vehicle Type:</span>
-        <span class="value">{{ helper.vehicleType || 'N/A' }}</span>
-      </div>
-      <div class="detail-item">
-        <span class="label">Document Type:</span>
-        <span class="value">{{ helper.documentType }}</span>
-      </div>
-      <div class="detail-item">
-        <span class="label">KYC Document:</span>
-        <span class="value">
-          <a [href]="helper.kycDocURL" target="_blank" rel="noopener noreferrer" class="doc-link">View Document</a>
-        </span>
-      </div>
-      <div class="detail-item full-width">
-        <span class="label">Languages:</span>
-        <div class="languages-list">
-          <span *ngFor="let lang of helper.languages" class="language-tag">{{ lang }}</span>
+
+      <div class="detail-section">
+        <h3>Service Details</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="label">Service Type:</span>
+            <span class="value">{{ helper.serviceType }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Organization:</span>
+            <span class="value">{{ helper.organization }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Joined On:</span>
+            <span class="value">{{ (helper.joinedOn | date:'mediumDate') || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Vehicle Type:</span>
+            <span class="value">{{ helper.vehicleType || 'N/A' }}</span>
+          </div>
+          <div class="detail-item" *ngIf="helper.vehicleType && helper.vehicleType !== 'None'">
+            <span class="label">Vehicle Number:</span>
+            <span class="value">{{ helper.vehicleNumber || 'N/A' }}</span>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="footer-actions">
-      <button class="btn btn-back" (click)="goBack()">Back to List</button>
+      <button mat-stroked-button (click)="goBack()">Back to List</button>
     </div>
   </ng-container>
 
   <ng-template #noHelper>
     <div class="no-helper-found">
       <h3>Helper not found or an error occurred.</h3>
-      <button class="btn btn-back" (click)="goBack()">Back to List</button>
+      <button mat-stroked-button (click)="goBack()">Back to List</button>
     </div>
   </ng-template>
 </div>
 
-<!-- Delete Confirmation Modal -->
 <div class="modal-overlay" *ngIf="showDeleteConfirm">
   <div class="modal-content">
     <h3>Confirm Deletion</h3>
-    <p>Are you sure you want to delete <strong>{{ helper?.name }}</strong>? This action cannot be undone.</p>
+    <p>Are you sure you want to delete <strong>{{ helper?.fullName }}</strong>? This action cannot be undone.</p>
     <div class="modal-actions">
-      <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
-      <button class="btn btn-danger" (click)="executeDelete()">Delete</button>
+      <button mat-stroked-button color="accent" (click)="cancelDelete()">Cancel</button>
+      <button mat-flat-button color="warn" (click)="executeDelete()">Delete</button>
     </div>
   </div>
 </div>

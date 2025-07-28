@@ -1,35 +1,70 @@
 <div class="helper-dashboard-container">
   <div class="left-panel">
+    
     <div class="panel-header">
-      <h3>All Helpers</h3>
-      <button class="btn btn-add-new" [routerLink]="['/helpers/new']">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px">
-          <path d="M12 4C11.4477 4 11 4.44772 11 5V11H5C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13H11V19C11 19.5523 11.4477 20 12 20C12.5523 20 13 19.5523 13 19V13H19C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11H13V5C13 4.44772 12.5523 4 12 4Z" />
-        </svg>
+      <h3>Helpers</h3>
+      <button mat-flat-button color="primary" [routerLink]="['/helpers/new']" class="btn-add-new">
+        <mat-icon svgIcon="add-icon"></mat-icon>
         Add New
       </button>
     </div>
 
-    <div class="filter-sort-controls">
-      <input type="text" [(ngModel)]="searchTerm" (input)="applyFiltersAndSort()" placeholder="Search helpers..." class="search-input">
-
-      <div class="sort-controls">
-        <select [(ngModel)]="sortKey" (change)="applyFiltersAndSort()" class="sort-dropdown">
-          <option value="name">Sort by Name</option>
-          <option value="serviceType">Sort by Service Type</option>
-          <option value="organization">Sort by Organization</option>
-          <option value="id">Sort by ID</option>
-          <option value="phone">Sort by Phone</option>
-        </select>
-        <button class="btn btn-sort-order" (click)="toggleSortOrder()">
-          <svg *ngIf="sortOrder === 'asc'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px">
-            <path d="M12 20L12 4M12 4L18 10M12 4L6 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <svg *ngIf="sortOrder === 'desc'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px">
-            <path d="M12 4L12 20M12 20L18 14M12 20L6 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+    <div class="filter-sort">
+      <div class="filter-sort-controls">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Search helpers...</mat-label>
+          <input matInput type="text" [(ngModel)]="searchTerm" (input)="applyFiltersAndSort()">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+  
+        <div class="filter-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Filter by Service Type</mat-label>
+            <mat-select [(ngModel)]="selectedServiceTypeFilter" (selectionChange)="applyFiltersAndSort()">
+              <mat-option value="">All Service Types</mat-option>
+              <mat-option *ngFor="let type of serviceTypes" [value]="type">{{type}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+  
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Filter by Organization</mat-label>
+            <mat-select [(ngModel)]="selectedOrganizationFilter" (selectionChange)="applyFiltersAndSort()">
+              <mat-option value="">All Organizations</mat-option>
+              <mat-option *ngFor="let org of organizations" [value]="org">{{org}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+  
+        <div class="sort-controls">
+          <mat-form-field appearance="outline" class="sort-dropdown-field">
+            <mat-label>Sort by</mat-label>
+            <mat-select [(ngModel)]="sortKey" (selectionChange)="applyFiltersAndSort()">
+              <mat-option value="fullName">Name</mat-option>
+              <mat-option value="employeeCode">Employee ID</mat-option>
+              <mat-option value="serviceType">Service Type</mat-option>
+              <mat-option value="organization">Organization</mat-option>
+              <mat-option value="phno">Phone</mat-option>
+              <mat-option value="id">MongoDB ID</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button class="btn-sort-order" (click)="toggleSortOrder()">
+            <mat-icon *ngIf="sortOrder === 'asc'" svgIcon="arrow-up-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"/>
+              </svg>
+            </mat-icon>
+            <mat-icon *ngIf="sortOrder === 'desc'" svgIcon="arrow-down-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1"/>
+              </svg>
+            </mat-icon>
+          </button>
+        </div>
       </div>
+    </div>
+    
+    <div class="helper-count">
+      Showing {{ filteredHelpers.length }} of {{ helpers.length }} results
     </div>
 
     <ul class="helper-list">
@@ -41,11 +76,11 @@
           [routerLink]="['/helpers', helper._id]"
           class="helper-list-item">
         <img [src]="helper.photoURL || 'https://placehold.co/50x50/E0E0E0/000000?text=NP'"
-             alt="{{ helper.name }}'s photo" class="helper-photo"
+             alt="{{ helper.fullName }}'s photo" class="helper-photo"
              onerror="this.onerror=null;this.src='https://placehold.co/50x50/E0E0E0/000000?text=NP';">
         <div class="helper-info">
-          <span class="helper-name">{{ helper.name }}</span>
-          <span class="helper-service">{{ helper.serviceType }}</span>
+          <span class="helper-name">{{ helper.fullName }}</span>
+          <span class="helper-service">{{ helper.serviceType }} ({{ helper.employeeCode }})</span>
         </div>
       </li>
     </ul>

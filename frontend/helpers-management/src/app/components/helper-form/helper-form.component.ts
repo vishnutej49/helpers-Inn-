@@ -1,17 +1,35 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl, AbstractControl } from '@angular/forms';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { HelperService } from '../../services/helper.service';
 import { Helper } from '../../models/helper.model';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil, finalize } from 'rxjs/operators';
+import { filter, takeUntil, finalize } from 'rxjs/operators';
+
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon'; 
 
 @Component({
   selector: 'app-helper-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule, 
+    MatInputModule,      
+    MatSelectModule,     
+    MatRadioModule,      
+    MatCheckboxModule,   
+    MatButtonModule,     
+    MatIconModule        
+  ],
   templateUrl: './helper-form.component.html',
   styleUrls: ['./helper-form.component.scss']
 })
@@ -48,8 +66,12 @@ export class HelperFormComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initForm();
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+
+    this.route.paramMap.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
       this.helperId = params.get('id');
+
       if (this.helperId) {
         this.isEditMode = true;
         this.loadHelperData(this.helperId);
@@ -61,8 +83,11 @@ export class HelperFormComponent implements OnInit, OnDestroy {
         this.kycPreviewUrl = null;
         this.selectedPhotoFile = null;
         this.selectedKycFile = null;
+        this.helperForm.get('employeeCode')?.setValue('');
+        this.helperForm.get('vehicleType')?.setValue('None');
       }
     });
+
 
     this.helperForm.get('vehicleType')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(value => {
       const vehicleNumberControl = this.helperForm.get('vehicleNumber');
@@ -88,7 +113,7 @@ export class HelperFormComponent implements OnInit, OnDestroy {
       vehicleType: ['None'],
       vehicleNumber: [''],
       docType: ['', Validators.required],
-      kycdoc: [null],
+      kycdoc: [null, Validators.required],
       photoURL: [null]
     });
   }
@@ -111,12 +136,13 @@ export class HelperFormComponent implements OnInit, OnDestroy {
           vehicleType: helper.vehicleType,
           vehicleNumber: helper.vehicleNumber,
           docType: helper.docType,
-          kycdoc: helper.kycdoc,
-          photoURL: helper.photoURL
         });
         this.setLanguages(helper.languages);
         this.photoPreviewUrl = helper.photoURL || null;
         this.kycPreviewUrl = helper.kycdoc || null;
+        if (helper.kycdoc) {
+          this.helperForm.get('kycdoc')?.setErrors(null);
+        }
       },
       error: (err) => {
         console.error('Error loading helper:', err);
@@ -130,8 +156,9 @@ export class HelperFormComponent implements OnInit, OnDestroy {
   }
 
   onChangeLanguage(event: any): void {
-    const checked = event.target.checked;
-    const value = event.target.value;
+    const checked = event.checked; 
+    const value = event.source.value;
+
     if (checked) {
       this.allLanguages.push(new FormControl(value));
     } else {
@@ -154,14 +181,17 @@ export class HelperFormComponent implements OnInit, OnDestroy {
   }
 
   isValid(field: string): boolean {
-    const control = this.helperForm.get(field)
-    if (field === 'languages') {
-      return (control?.invalid && (this.isSubmitted || control?.touched || control?.dirty)) || false;
+    const control = this.helperForm.get(field);
+    if (!control) {
+      return false;
     }
-    return (control?.invalid && (this.isSubmitted || control?.touched)) || false;
+    if (field === 'languages') {
+      return (control.invalid && (this.isSubmitted || control.touched || control.dirty));
+    }
+    return (control.invalid && (this.isSubmitted || control.touched));
   }
 
-  isImageFile(url: string | ArrayBuffer | null | undefined): boolean {
+  isImageFile(url: string | ArrayBuffer | null): boolean {
     if (typeof url !== 'string' || !url) {
       return false;
     }
@@ -178,15 +208,27 @@ export class HelperFormComponent implements OnInit, OnDestroy {
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedPhotoFile = input.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.photoPreviewUrl = reader.result;
-      };
-      reader.readAsDataURL(this.selectedPhotoFile);
+      const file = input.files[0];
+      if (file.type === 'image/jpeg' || file.type === 'image/png') {
+        this.selectedPhotoFile = file;
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.photoPreviewUrl = reader.result;
+        };
+        reader.readAsDataURL(this.selectedPhotoFile);
+        this.helperForm.get('photoURL')?.setErrors(null);
+      } else {
+        this.selectedPhotoFile = null;
+        this.photoPreviewUrl = null;
+        this.helperForm.get('photoURL')?.setErrors({ invalidFileType: true });
+      }
     } else {
       this.selectedPhotoFile = null;
       this.photoPreviewUrl = null;
+      const photoControl = this.helperForm.get('photoURL');
+      if (photoControl && photoControl.hasError('required')) {
+         photoControl.setErrors({ required: true });
+      }
     }
     this.helperForm.get('photoURL')?.markAsTouched();
     this.helperForm.get('photoURL')?.markAsDirty();
@@ -195,15 +237,30 @@ export class HelperFormComponent implements OnInit, OnDestroy {
   onKycSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedKycFile = input.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.kycPreviewUrl = reader.result;
-      };
-      reader.readAsDataURL(this.selectedKycFile);
+      const file = input.files[0];
+      if (file.type === 'application/pdf') {
+        this.selectedKycFile = file;
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.kycPreviewUrl = reader.result;
+        };
+        reader.readAsDataURL(this.selectedKycFile);
+        this.helperForm.get('kycdoc')?.setErrors(null);
+      } else {
+        this.selectedKycFile = null;
+        this.kycPreviewUrl = null;
+        this.helperForm.get('kycdoc')?.setErrors({ invalidFileType: true });
+      }
     } else {
       this.selectedKycFile = null;
       this.kycPreviewUrl = null;
+      const kycControl = this.helperForm.get('kycdoc');
+      if (kycControl) {
+        kycControl.updateValueAndValidity();
+        if (kycControl.hasError('required')) {
+          kycControl.markAsTouched();
+        }
+      }
     }
     this.helperForm.get('kycdoc')?.markAsTouched();
     this.helperForm.get('kycdoc')?.markAsDirty();
@@ -218,11 +275,20 @@ export class HelperFormComponent implements OnInit, OnDestroy {
     }
 
     this.previewData = { ...this.helperForm.getRawValue() };
-    if (this.selectedPhotoFile && this.photoPreviewUrl && this.previewData) {
-      this.previewData.photoURL = this.photoPreviewUrl as string;
+    if (this.selectedPhotoFile && this.photoPreviewUrl) {
+      this.previewData!.photoURL = this.photoPreviewUrl as string;
+    } else if (this.isEditMode && this.helperForm.get('photoURL')?.value) {
+      this.previewData!.photoURL = this.helperForm.get('photoURL')?.value;
+    } else {
+      this.previewData!.photoURL = undefined;
     }
-    if (this.selectedKycFile && this.kycPreviewUrl && this.previewData) {
-      this.previewData.kycdoc = this.kycPreviewUrl as string;
+
+    if (this.selectedKycFile && this.kycPreviewUrl) {
+      this.previewData!.kycdoc = this.kycPreviewUrl as string;
+    } else if (this.isEditMode && this.helperForm.get('kycdoc')?.value) {
+      this.previewData!.kycdoc = this.helperForm.get('kycdoc')?.value;
+    } else {
+      this.previewData!.kycdoc = '';
     }
 
     this.showPreviewModal = true;

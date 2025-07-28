@@ -6,23 +6,42 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+
 @Component({
   selector: 'app-helper-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule
+  ],
   templateUrl: './helper-detail.component.html',
   styleUrls: ['./helper-detail.component.scss']
 })
 export class HelperDetailComponent implements OnInit, OnDestroy {
   helper: Helper | undefined;
-  showDeleteConfirm: boolean = false; 
+  showDeleteConfirm: boolean = false;
   private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private helperService: HelperService
-  ) { }
+    private helperService: HelperService,
+    private matIconRegistry: MatIconRegistry,
+    private domSanitizer: DomSanitizer
+  ) {
+    this.matIconRegistry.addSvgIcon(
+      'edit-icon',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/edit-icon.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'delete-icon',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/delete-icon.svg')
+    );
+  }
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
@@ -34,7 +53,6 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
       }
     });
   }
-
 
   loadHelperDetails(id: string): void {
     this.helperService.getHelperById(id).pipe(takeUntil(this.destroy$)).subscribe({
@@ -48,7 +66,6 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
       }
     });
   }
-
 
   editHelper(): void {
     if (this.helper?._id) {
@@ -70,11 +87,11 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
         next: () => {
           console.log('Helper deleted successfully!');
           this.showDeleteConfirm = false;
-          this.router.navigate(['/helpers']); 
+          this.router.navigate(['/helpers']);
         },
         error: (err) => {
           console.error('Error deleting helper:', err);
-          this.showDeleteConfirm = false; 
+          this.showDeleteConfirm = false;
         }
       });
     }

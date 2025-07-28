@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-
+import { HelperDetailComponent } from './components/helper-detail/helper-detail.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'helpers', pathMatch: 'full' },
 

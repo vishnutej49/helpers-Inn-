@@ -1,16 +1,17 @@
-
 export interface Helper {
-  _id?: string; 
+  _id?: string;
+  employeeCode?: string;
   serviceType: string;
   organization: string;
-  name: string;
+  fullName: string;
   gender: string;
-  phone: number;
+  phno: number;
   email?: string;
   vehicleType?: string;
-  documentType: string;
-  kycDocURL: string;
+  vehicleNumber?: string;
+  docType: string;
+  kycdoc: string;
   photoURL?: string;
   languages: string[];
+  joinedOn?: string;
 }
-

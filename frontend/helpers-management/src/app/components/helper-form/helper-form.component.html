@@ -2,136 +2,147 @@
   <h2>{{ isEditMode ? 'Edit Helper' : 'Add New Helper' }}</h2>
 
   <form [formGroup]="helperForm" (ngSubmit)="showPreview()">
-    <div class="form-group">
-      <label for="employeeCode">Employee ID:</label>
-      <input id="employeeCode" type="text" formControlName="employeeCode" class="form-control" readonly>
-    </div>
+    <div class="form-section">
+      <mat-form-field appearance="outline">
+        <mat-label>Employee ID</mat-label>
+        <input matInput formControlName="employeeCode" readonly>
+      </mat-form-field>
 
-    <div class="form-group">
-      <label for="serviceType">Type of Service*</label>
-      <select formControlName="serviceType" id="serviceType" class="form-control"
-              [class.is-invalid]="isValid('serviceType')">
-        <option value="" disabled selected>Select Service Type</option>
-        <option *ngFor="let service of serviceTypes" [value]="service">{{service}}</option>
-      </select>
-      <div *ngIf="isValid('serviceType')" class="invalid-feedback">Select a Type of Service</div>
-    </div>
+      <!-- Type of Service -->
+      <mat-form-field appearance="outline">
+        <mat-label>Type of Service</mat-label>
+        <mat-select formControlName="serviceType" [class.is-invalid]="isValid('serviceType')">
+          <mat-option value="" disabled selected>Select Service Type</mat-option>
+          <mat-option *ngFor="let service of serviceTypes" [value]="service">{{service}}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="isValid('serviceType')">Select a Type of Service</mat-error>
+      </mat-form-field>
 
-    <div class="form-group">
-      <label for="organization">Organization*</label>
-      <select formControlName="organization" id="organization" class="form-control"
-              [class.is-invalid]="isValid('organization')">
-        <option value="" disabled selected>Select Organization</option>
-        <option *ngFor="let org of organizations" [value]="org">{{org}}</option>
-      </select>
-      <div *ngIf="isValid('organization')" class="invalid-feedback">Select an Organization</div>
-    </div>
+      <!-- Organization -->
+      <mat-form-field appearance="outline">
+        <mat-label>Organization</mat-label>
+        <mat-select formControlName="organization" [class.is-invalid]="isValid('organization')">
+          <mat-option value="" disabled selected>Select Organization</mat-option>
+          <mat-option *ngFor="let org of organizations" [value]="org">{{org}}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="isValid('organization')">Select an Organization</mat-error>
+      </mat-form-field>
 
-    <div class="form-group">
-      <label for="fullName">Full Name*</label>
-      <input id="fullName" type="text" formControlName="fullName" class="form-control"
-             [class.is-invalid]="isValid('fullName')">
-      <div *ngIf="isValid('fullName')" class="invalid-feedback">Enter full name</div>
-    </div>
+      <!-- Full Name -->
+      <mat-form-field appearance="outline">
+        <mat-label>Full Name</mat-label>
+        <input matInput type="text" formControlName="fullName">
+        <mat-error *ngIf="isValid('fullName')">Enter full name</mat-error>
+      </mat-form-field>
 
-    <div class="form-group">
-      <label>Languages*</label>
-      <div class="languages-dropdown-container">
-        <div class="dropdown-header" [class.is-invalid]="isValid('languages')" tabindex="0">
-          <span>Select Languages</span>
-          <span class="arrow">▼</span>
+      <!-- Languages (Dropdown of Checkboxes) -->
+      <div class="form-group languages-group">
+        <label class="mat-body-1">Languages*</label>
+        <div class="languages-dropdown-container">
+          <div class="dropdown-header" [class.is-invalid]="isValid('languages')" tabindex="0">
+            <span>Select Languages</span>
+            <mat-icon class="arrow-icon">arrow_drop_down</mat-icon>
+          </div>
+          <div class="dropdown-content">
+            <mat-checkbox *ngFor="let language of availableLanguages"
+                          [value]="language"
+                          [checked]="isLanguageSelected(language)"
+                          (change)="onChangeLanguage($event)">
+              {{language}}
+            </mat-checkbox>
+          </div>
         </div>
-        <div class="dropdown-content">
-          <label *ngFor="let language of availableLanguages" class="checkbox-item">
-            <input type="checkbox" [value]="language" (change)="onChangeLanguage($event)"
-                   [checked]="isLanguageSelected(language)">
-            {{language}}
-          </label>
+        <mat-error *ngIf="isValid('languages')">Select at least 2 languages</mat-error>
+      </div>
+
+      <!-- Gender -->
+      <div class="form-group gender-group">
+        <label class="mat-body-1">Gender*</label>
+        <mat-radio-group formControlName="gender" [class.is-invalid]="isValid('gender')">
+          <mat-radio-button *ngFor="let genderOption of genders" [value]="genderOption">
+            {{genderOption}}
+          </mat-radio-button>
+        </mat-radio-group>
+        <mat-error *ngIf="isValid('gender')">Gender is required</mat-error>
+      </div>
+
+      <!-- E-mail -->
+      <mat-form-field appearance="outline">
+        <mat-label>E-mail</mat-label>
+        <input matInput type="email" formControlName="email">
+        <mat-error *ngIf="isValid('email')">Enter valid E-mail</mat-error>
+      </mat-form-field>
+
+      <!-- Phone Number -->
+      <mat-form-field appearance="outline">
+        <mat-label>Phone Number</mat-label>
+        <input matInput type="tel" formControlName="phno">
+        <mat-error *ngIf="isValid('phno')">Enter a valid 10-digit Phone Number</mat-error>
+      </mat-form-field>
+
+      <!-- Vehicle Type -->
+      <mat-form-field appearance="outline">
+        <mat-label>Vehicle Type</mat-label>
+        <mat-select formControlName="vehicleType">
+          <mat-option *ngFor="let type of vehicleTypes" [value]="type">{{type}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Vehicle Number (Conditional) -->
+      <mat-form-field appearance="outline" *ngIf="helperForm.get('vehicleType')?.value && helperForm.get('vehicleType')?.value !== 'None'">
+        <mat-label>Vehicle Number</mat-label>
+        <input matInput type="text" formControlName="vehicleNumber">
+        <mat-error *ngIf="isValid('vehicleNumber')">Vehicle Number is required if Vehicle Type is selected.</mat-error>
+      </mat-form-field>
+
+      <!-- Document Type -->
+      <mat-form-field appearance="outline">
+        <mat-label>Document Type</mat-label>
+        <mat-select formControlName="docType" [class.is-invalid]="isValid('docType')">
+          <mat-option value="" disabled selected>Select Document Type</mat-option>
+          <mat-option *ngFor="let type of docTypes" [value]="type">{{type}}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="isValid('docType')">Document Type is required.</mat-error>
+      </mat-form-field>
+
+      <!-- KYC Document Upload -->
+      <div class="form-group file-upload-group">
+        <label for="kycdoc">KYC Document</label>
+        <input id="kycdoc" type="file" (change)="onKycSelected($event)" class="file-input"
+               [class.is-invalid]="isValid('kycdoc')" accept="application/pdf">
+        <div class="file-preview" *ngIf="kycPreviewUrl">
+          <img *ngIf="isImageFile(kycPreviewUrl)" [src]="kycPreviewUrl" alt="KYC Preview" class="img-preview">
+          <span *ngIf="!isImageFile(kycPreviewUrl)" class="file-name-preview">
+            {{ selectedKycFile?.name || 'Document selected' }}
+            <a *ngIf="isDataUrlFile(kycPreviewUrl)" [href]="kycPreviewUrl" target="_blank" rel="noopener noreferrer">View</a>
+          </span>
         </div>
+        <mat-error *ngIf="helperForm.get('kycdoc')?.errors?.['invalidFileType']">Only PDF files are allowed.</mat-error>
+        <mat-error *ngIf="isValid('kycdoc') && !helperForm.get('kycdoc')?.errors?.['invalidFileType']">KYC Document is required.</mat-error>
       </div>
-      <div *ngIf="isValid('languages')" class="invalid-feedback">Select at least 2 languages</div>
-    </div>
 
-    <div class="form-group">
-      <label>Gender*</label>
-      <div class="radio-group" [class.is-invalid]="isValid('gender')">
-        <label *ngFor="let genderOption of genders" class="radio-item">
-          <input type="radio" [value]="genderOption" formControlName="gender">
-          {{genderOption}}
-        </label>
-      </div>
-      <div *ngIf="isValid('gender')" class="invalid-feedback">Gender is required</div>
-    </div>
-
-    <div class="form-group">
-      <label for="email">E-mail</label>
-      <input id="email" type="email" formControlName="email" class="form-control"
-             [class.is-invalid]="isValid('email')">
-      <div *ngIf="isValid('email')" class="invalid-feedback">Enter valid E-mail</div>
-    </div>
-
-    <div class="form-group">
-      <label for="phno">Phone Number*</label>
-      <input id="phno" type="tel" formControlName="phno" class="form-control"
-             [class.is-invalid]="isValid('phno')">
-      <div *ngIf="isValid('phno')" class="invalid-feedback">Enter a valid 10-digit Phone Number</div>
-    </div>
-
-    <div class="form-group">
-      <label for="vehicleType">Vehicle Type:</label>
-      <select formControlName="vehicleType" id="vehicleType" class="form-control">
-        <option *ngFor="let type of vehicleTypes" [value]="type">{{type}}</option>
-      </select>
-    </div>
-
-    <div class="form-group" *ngIf="helperForm.get('vehicleType')?.value && helperForm.get('vehicleType')?.value !== 'None'">
-      <label for="vehicleNumber">Vehicle Number*</label>
-      <input id="vehicleNumber" type="text" formControlName="vehicleNumber" class="form-control"
-             [class.is-invalid]="isValid('vehicleNumber')">
-      <div *ngIf="isValid('vehicleNumber')" class="invalid-feedback">Vehicle Number is required if Vehicle Type is selected.</div>
-    </div>
-
-    <div class="form-group">
-      <label for="docType">Document Type*</label>
-      <select formControlName="docType" id="docType" class="form-control"
-              [class.is-invalid]="isValid('docType')">
-        <option value="" disabled selected>Select Document Type</option>
-        <option *ngFor="let type of docTypes" [value]="type">{{type}}</option>
-      </select>
-      <div *ngIf="isValid('docType')" class="invalid-feedback">Document Type is required.</div>
-    </div>
-
-    <div class="form-group">
-      <label for="kycdoc">KYC Document*</label>
-      <input id="kycdoc" type="file" (change)="onKycSelected($event)" class="form-control file-input"
-             [class.is-invalid]="isValid('kycdoc')">
-      <div class="file-preview" *ngIf="kycPreviewUrl">
-        <img *ngIf="isImageFile(kycPreviewUrl)" [src]="kycPreviewUrl" alt="KYC Preview" class="img-preview">
-        <span *ngIf="!isImageFile(kycPreviewUrl)" class="file-name-preview">
-          {{ selectedKycFile?.name || 'Document selected' }}
-          <a *ngIf="isDataUrlFile(kycPreviewUrl)" [href]="kycPreviewUrl" target="_blank" rel="noopener noreferrer">View</a>
-        </span>
-      </div>
-      <div *ngIf="isValid('kycdoc')" class="invalid-feedback">KYC Document is required.</div>
-    </div>
-
-    <div class="form-group">
-      <label for="photoURL">Profile Photo</label>
-      <input id="photoURL" type="file" (change)="onPhotoSelected($event)" class="form-control file-input">
-      <div class="file-preview" *ngIf="photoPreviewUrl">
-        <img *ngIf="isImageFile(photoPreviewUrl)" [src]="photoPreviewUrl" alt="Photo Preview" class="img-preview">
+      <!-- Profile Photo Upload -->
+      <div class="form-group file-upload-group">
+        <label for="photoURL">Profile Photo</label>
+        <input id="photoURL" type="file" (change)="onPhotoSelected($event)" class="file-input"
+               accept="image/jpeg, image/png">
+        <div class="file-preview" *ngIf="photoPreviewUrl">
+          <img *ngIf="isImageFile(photoPreviewUrl)" [src]="photoPreviewUrl" alt="Photo Preview" class="img-preview">
+        </div>
+        <mat-error *ngIf="helperForm.get('photoURL')?.errors?.['invalidFileType']">Only JPEG/PNG images are allowed.</mat-error>
       </div>
     </div>
 
     <div class="form-actions">
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
-      <button type="submit" class="btn btn-primary" [disabled]="helperForm.invalid || isLoading">
+      <button mat-stroked-button color="warn" type="button" (click)="onCancel()">Cancel</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="helperForm.invalid || isLoading">
         {{ isEditMode ? 'Update Helper' : 'Add Helper' }}
         <span *ngIf="isLoading" class="spinner"></span>
       </button>
     </div>
   </form>
 
+  <!-- Preview Modal -->
   <div class="modal-overlay" *ngIf="showPreviewModal">
     <div class="modal-content preview-modal">
       <h3>Preview Helper Details</h3>
@@ -160,13 +171,13 @@
         </div>
         <div class="preview-item file-preview-container">
           <strong>KYC Document:</strong>
-          <img *ngIf="previewData?.kycdoc && isImageFile(previewData?.kycdoc)" [src]="previewData?.kycdoc" alt="KYC Preview" class="img-preview-small">
-          <span *ngIf="previewData?.kycdoc && !isImageFile(previewData?.kycdoc)">Document selected <a [href]="previewData?.kycdoc" target="_blank" rel="noopener noreferrer">View</a></span>
+          <img *ngIf="previewData?.kycdoc && isImageFile(previewData?.kycdoc ?? null)" [src]="previewData?.kycdoc" alt="KYC Preview" class="img-preview-small">
+          <span *ngIf="previewData?.kycdoc && !isImageFile(previewData?.kycdoc ?? null)">Document selected <a [href]="previewData?.kycdoc" target="_blank" rel="noopener noreferrer">View</a></span>
           <span *ngIf="!previewData?.kycdoc">No KYC document selected</span>
         </div>
         <div class="preview-item file-preview-container">
           <strong>Profile Photo:</strong>
-          <img *ngIf="previewData?.photoURL && isImageFile(previewData?.photoURL)" [src]="previewData?.photoURL" alt="Profile Photo Preview" class="img-preview-small profile-photo-preview">
+          <img *ngIf="previewData?.photoURL && isImageFile(previewData?.photoURL ?? null)" [src]="previewData?.photoURL" alt="Profile Photo Preview" class="img-preview-small profile-photo-preview">
           <span *ngIf="!previewData?.photoURL">No photo selected</span>
         </div>
       </div>
@@ -191,8 +202,8 @@
       </div>
 
       <div class="modal-actions">
-        <button class="btn btn-secondary" (click)="cancelPreview()">Edit</button>
-        <button class="btn btn-primary" (click)="confirmSubmit()" [disabled]="isLoading">
+        <button mat-stroked-button color="warn" (click)="cancelPreview()">Edit</button>
+        <button mat-flat-button color="primary" (click)="confirmSubmit()" [disabled]="isLoading">
           Confirm & Submit
           <span *ngIf="isLoading" class="spinner"></span>
         </button>
