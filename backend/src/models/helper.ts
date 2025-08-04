@@ -22,7 +22,7 @@ const helperSchema = new mongoose.Schema({
       message: 'At least one language is required.'
     }
   },
-  employeeCode: { type: String, unique: true, required: true },
+  employeeCode: String,
   joinedOn: { type: Date, default: Date.now }
 });
 
