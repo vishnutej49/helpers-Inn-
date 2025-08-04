@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, signal, Signal, effect } from '@angular/core';
+import { Router } from '@angular/router';
 import { HelperService } from '../../services/helper.service';
 import { Helper } from '../../models/helper.model';
 import { CommonModule } from '@angular/common';
@@ -7,8 +7,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-helper-detail',
@@ -22,54 +21,35 @@ import { DomSanitizer } from '@angular/platform-browser';
   styleUrls: ['./helper-detail.component.scss']
 })
 export class HelperDetailComponent implements OnInit, OnDestroy {
-  helper: Helper | undefined;
+  selectedHelper = this.helperService.selectedHelper;
+  
   showDeleteConfirm: boolean = false;
   private destroy$ = new Subject<void>();
 
+  get currentHelper() {
+    return this.selectedHelper();
+  }
+
+  helper = this.selectedHelper();
+
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
-    private helperService: HelperService,
-    private matIconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer
+    private helperService: HelperService
   ) {
-    this.matIconRegistry.addSvgIcon(
-      'edit-icon',
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/edit-icon.svg')
-    );
-    this.matIconRegistry.addSvgIcon(
-      'delete-icon',
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/delete-icon.svg')
-    );
+    effect(() => {
+      this.helper = this.selectedHelper();
+    });
   }
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.loadHelperDetails(id);
-      } else {
-        this.router.navigate(['/helpers']);
-      }
-    });
-  }
-
-  loadHelperDetails(id: string): void {
-    this.helperService.getHelperById(id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (helper: Helper) => {
-        this.helper = helper;
-      },
-      error: (err) => {
-        console.error('Error fetching helper details:', err);
-        this.helper = undefined;
-        this.router.navigate(['/helpers']);
-      }
-    });
+    console.log('HelperDetailComponent initialized');
+    console.log('Selected helper signal:', this.currentHelper);
   }
 
   editHelper(): void {
-    if (this.helper?._id) {
-      this.router.navigate(['/helpers/edit', this.helper._id]);
+    const helper = this.helper;
+    if (helper?._id) {
+      this.router.navigate(['/helpers/edit', helper._id]);
     }
   }
 
@@ -82,9 +62,15 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
   }
 
   executeDelete(): void {
-    if (this.helper?._id) {
-      this.helperService.deleteHelper(this.helper._id).pipe(takeUntil(this.destroy$)).subscribe({
+
+    const helper = this.helper;
+    if (helper?._id) {
+      this.helperService.deleteHelper(helper._id).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
+          
+          // this.helper = this.helperService.selectedHelper;
+          // this.helperService.setSelectedHelperId(helper?._id || null);
+          this.helperService.setFirstHelper();
           console.log('Helper deleted successfully!');
           this.showDeleteConfirm = false;
           this.router.navigate(['/helpers']);
@@ -99,6 +85,19 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.router.navigate(['/helpers']);
+  }
+
+  getProfileImageUrl(helper: Helper): string {
+    if (helper.photoURL) {
+      return helper.photoURL;
+    }
+    return this.helperService.generateProfileImageUrl(helper.fullName);
+  }
+  getkycdoc(helper: Helper): string{
+    if (helper.kycdoc) {
+      return helper.kycdoc;
+    }
+    return "";
   }
 
   ngOnDestroy(): void {

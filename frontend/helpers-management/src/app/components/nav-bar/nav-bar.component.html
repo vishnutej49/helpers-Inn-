@@ -1,0 +1,108 @@
+<nav>
+  <h2>Helpers</h2>
+  <div class="nav-container">
+    <!-- Sort Button -->
+    <button mat-icon-button class="btn-sort-order" (click)="toggleSortOrder()">
+      <mat-icon *ngIf="sortOrder === 'asc'">keyboard_arrow_up</mat-icon>
+      <mat-icon *ngIf="sortOrder === 'desc'">keyboard_arrow_down</mat-icon>
+    </button>
+    <div class="nav-section">
+      <button mat-flat-button color="primary" (click)="toggleSortOptions()" class="btn-sort">
+        Sort
+      </button>
+      
+      <!-- Sort Options Dropdown -->
+
+      <div class="dropdown-options" *ngIf="showSortOptions">
+        <div class="sort-controls">
+          <mat-form-field appearance="outline" class="sort-dropdown-field">
+            <mat-label>Sort by</mat-label>
+            <mat-select [(ngModel)]="sortKey">
+              <mat-option value="fullName">Name</mat-option>
+              <mat-option value="employeeCode">Employee ID</mat-option>
+              <mat-option value="serviceType">Service Type</mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          
+          <button mat-flat-button color="primary" (click)="applySort()" class="btn-apply">
+            Apply
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Button -->
+    <div class="nav-section">
+      <button mat-flat-button color="primary" (click)="toggleFilterOptions()" class="btn-filter">
+        <mat-icon>filter_list</mat-icon>
+        Filter
+      </button>
+      
+      <!-- Filter Options Dropdown -->
+      <div class="dropdown-options" *ngIf="showFilterOptions">
+        <div class="filter-section">
+          <div class="filter-group">
+            <h4>Service Type</h4>
+            <div class="checkbox-list">
+              <mat-checkbox 
+                *ngFor="let type of serviceTypes" 
+                [checked]="selectedServiceTypes.includes(type)"
+                (change)="onServiceTypeChange(type, $event.checked)"
+                class="filter-checkbox">
+                {{ type }}
+              </mat-checkbox>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <h4>Organization</h4>
+            <div class="checkbox-list">
+              <mat-checkbox 
+                *ngFor="let org of organizations" 
+                [checked]="selectedOrganizations.includes(org)"
+                (change)="onOrganizationChange(org, $event.checked)"
+                class="filter-checkbox">
+                {{ org }}
+              </mat-checkbox>
+            </div>
+          </div>
+          
+          <div class="filter-actions">
+            <button mat-button color="warn" (click)="resetFilters()" class="btn-reset">
+              Reset
+            </button>
+            <button mat-flat-button color="primary" (click)="applyFilters()" class="btn-apply">
+              Apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Helper Count Row -->
+    <div class="nav-section search-section">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search Helper</mat-label>
+        <input matInput type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()">
+        <mat-icon matSuffix>search</mat-icon>
+        <button mat-icon-button matSuffix (click)="resetSearch()" *ngIf="searchTerm">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </mat-form-field>
+      
+      <div class="helper-count">
+        {{ filteredHelpers().length }} of {{helpers().length}} helpers
+      </div>
+    </div>
+
+    <!-- Add Helper Button (Right Aligned) -->
+    <div class="nav-section add-section">
+      <button mat-flat-button color="primary" [routerLink]="['/helpers/new']" class="btn-add-new">
+        <mat-icon>add</mat-icon>
+        Add Helper
+      </button>
+    </div>
+    
+  </div>
+</nav>

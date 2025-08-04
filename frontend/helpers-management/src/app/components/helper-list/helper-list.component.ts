@@ -1,18 +1,18 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RouterOutlet, RouterLink, Router, ActivatedRoute, NavigationEnd, Event as RouterEvent } from '@angular/router';
-import { HelperService } from '../../services/helper.service';
+import { Component, OnInit, OnDestroy, effect } from '@angular/core';
+import { RouterOutlet, RouterLink, Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { HelperService, FilterOptions, SortOptions } from '../../services/helper.service';
 import { Helper } from '../../models/helper.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, combineLatest } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule, MatIconRegistry } from '@angular/material/icon'; 
-import { DomSanitizer } from '@angular/platform-browser'; 
+import { MatIconModule } from '@angular/material/icon'; 
+import { HelperDetailComponent } from '../helper-detail/helper-detail.component'; 
 
 @Component({
   selector: 'app-helper-list',
@@ -26,63 +26,40 @@ import { DomSanitizer } from '@angular/platform-browser';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatIconModule
-  ],
+    MatIconModule,
+    HelperDetailComponent
+],
   templateUrl: './helper-list.component.html',
   styleUrls: ['./helper-list.component.scss']
 })
 export class HelperListComponent implements OnInit, OnDestroy {
-  helpers: Helper[] = [];
-  filteredHelpers: Helper[] = [];
-  selectedHelperId: string | null = null;
-
-  searchTerm: string = '';
-  sortKey: string = 'fullName';
-  sortOrder: 'asc' | 'desc' = 'asc';
-
-  selectedServiceTypeFilter: string = '';
-  selectedOrganizationFilter: string = '';
-
-  serviceTypes: string[] = ['Cook', 'Driver', 'Cleaner'];
-  organizations: string[] = ['ASBL', 'Inncircles'];
+  // Use signals from service
+  helpers = this.helperService.helpers;
+  filteredHelpers = this.helperService.filteredHelpers;
+  selectedHelperId = this.helperService.selectedHelperId;
+  selectedHelper = this.helperService.selectedHelper;
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private helperService: HelperService,
     private router: Router,
-    private route: ActivatedRoute,
-    private matIconRegistry: MatIconRegistry, 
-    private domSanitizer: DomSanitizer 
+    private route: ActivatedRoute
   ) {
-    
-    this.matIconRegistry.addSvgIcon(
-      'add-icon',
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/add-icon.svg') 
-    );
-    this.matIconRegistry.addSvgIcon(
-      'arrow-up-icon',
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/arrow-up-icon.svg') 
-    );
-    this.matIconRegistry.addSvgIcon(
-      'arrow-down-icon',
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/arrow-down-icon.svg')
-    );
+    // Icons will be handled by Material Design icons
+    effect(()=>{
+      // this.helperService.helpers();
+      this.loadHelpers();
+    })
   }
 
   ngOnInit(): void {
     this.loadHelpers();
 
     this.router.events.pipe(
-      filter((event: RouterEvent): event is NavigationEnd => event instanceof NavigationEnd),
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       takeUntil(this.destroy$)
     ).subscribe((event: NavigationEnd) => {
-      let currentRoute = this.route;
-      while (currentRoute.firstChild) {
-        currentRoute = currentRoute.firstChild;
-      }
-      this.selectedHelperId = currentRoute.snapshot.paramMap.get('id');
-
       if (event.url.startsWith('/helpers')) {
         this.loadHelpers();
       }
@@ -92,8 +69,13 @@ export class HelperListComponent implements OnInit, OnDestroy {
   loadHelpers(): void {
     this.helperService.getHelpers().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: Helper[]) => {
-        this.helpers = data;
-        this.applyFiltersAndSort();
+        console.log('Helpers loaded:', data);
+        this.helperService.setHelpers(data);
+        // Auto-select the first helper if no helper is currently selected
+        if (data.length > 0 && !this.selectedHelperId()) {
+          console.log('Auto-selecting first helper:', data[0]);
+          this.helperService.setSelectedHelperId(data[0]._id || null);
+        }
       },
       error: (err) => {
         console.error('Error fetching helpers:', err);
@@ -101,87 +83,16 @@ export class HelperListComponent implements OnInit, OnDestroy {
     });
   }
 
-  applyFiltersAndSort(): void {
-    let tempHelpers = [...this.helpers];
-
-    if (this.searchTerm) {
-      const lowerCaseSearchTerm = this.searchTerm.toLowerCase();
-      tempHelpers = tempHelpers.filter(helper =>
-        helper.fullName.toLowerCase().includes(lowerCaseSearchTerm) ||
-        helper.serviceType.toLowerCase().includes(lowerCaseSearchTerm) ||
-        helper.organization.toLowerCase().includes(lowerCaseSearchTerm) ||
-        helper.email?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        helper.employeeCode?.toLowerCase().includes(lowerCaseSearchTerm) ||
-        helper._id?.toLowerCase().includes(lowerCaseSearchTerm)
-      );
-    }
-
-    if (this.selectedServiceTypeFilter) {
-      tempHelpers = tempHelpers.filter(helper =>
-        helper.serviceType === this.selectedServiceTypeFilter
-      );
-    }
-
-    if (this.selectedOrganizationFilter) {
-      tempHelpers = tempHelpers.filter(helper =>
-        helper.organization === this.selectedOrganizationFilter
-      );
-    }
-
-    tempHelpers.sort((a, b) => {
-      let valA: any;
-      let valB: any;
-
-      switch (this.sortKey) {
-        case 'fullName':
-          valA = a.fullName.toLowerCase();
-          valB = b.fullName.toLowerCase();
-          break;
-        case 'serviceType':
-          valA = a.serviceType.toLowerCase();
-          valB = b.serviceType.toLowerCase();
-          break;
-        case 'organization':
-          valA = a.organization.toLowerCase();
-          valB = b.organization.toLowerCase();
-          break;
-        case 'employeeCode':
-          valA = a.employeeCode ? parseInt(a.employeeCode, 10) : 0;
-          valB = b.employeeCode ? parseInt(b.employeeCode, 10) : 0;
-          break;
-        case 'phno':
-          valA = a.phno;
-          valB = b.phno;
-          break;
-        case 'id':
-          valA = a._id ? a._id.toLowerCase() : '';
-          valB = b._id ? b._id.toLowerCase() : '';
-          break;
-        default:
-          valA = a.fullName.toLowerCase();
-          valB = b.fullName.toLowerCase();
-          break;
-      }
-
-      if (valA < valB) {
-        return this.sortOrder === 'asc' ? -1 : 1;
-      }
-      if (valA > valB) {
-        return this.sortOrder === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-
-    this.filteredHelpers = tempHelpers;
+  selectHelper(helper: Helper): void {
+    console.log('Selecting helper:', helper);
+    this.helperService.setSelectedHelperId(helper._id || null);
   }
 
-  toggleSortOrder(): void {
-    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-    this.applyFiltersAndSort();
-  }
-
-  addNewHelper(): void {
-    this.router.navigate(['/helpers/new']);
+  getProfileImageUrl(helper: Helper): string {
+    if (helper.photoURL) {
+      return helper.photoURL;
+    }
+    return this.helperService.generateProfileImageUrl(helper.fullName);
   }
 
   ngOnDestroy(): void {

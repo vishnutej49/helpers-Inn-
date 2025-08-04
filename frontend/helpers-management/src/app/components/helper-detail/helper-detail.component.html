@@ -1,8 +1,11 @@
 <div class="helper-detail-container">
-  <ng-container *ngIf="helper; else noHelper">
+
+  <ng-container *ngIf="helper">
+
+    <!-- section-1 -->
     <div class="header">
       <div class="profile-summary">
-        <img [src]="helper.photoURL || 'https://placehold.co/150x150/E0E0E0/000000?text=No+Photo'"
+        <img [src]="getProfileImageUrl(helper)"
              alt="{{ helper.fullName }}'s photo" class="profile-photo"
              onerror="this.onerror=null;this.src='https://placehold.co/150x150/E0E0E0/000000?text=No+Photo';">
         <div class="name-service">
@@ -39,6 +42,7 @@
       </div>
     </div>
 
+    <!-- All Details -->
     <div class="details-sections">
       <div class="detail-section">
         <h3>Employee ID</h3>
@@ -74,7 +78,7 @@
           <div class="detail-item">
             <span class="label">KYC Document:</span>
             <span class="value">
-              <a [href]="helper.kycdoc" target="_blank" rel="noopener noreferrer" class="doc-link">View Document</a>
+              <a [href]="getkycdoc(helper)" target="_blank" rel="noopener noreferrer" class="doc-link">View Document</a>
             </span>
           </div>
           <div class="detail-item full-width">
@@ -116,20 +120,16 @@
     <div class="footer-actions">
       <button mat-stroked-button (click)="goBack()">Back to List</button>
     </div>
+
   </ng-container>
 
-  <ng-template #noHelper>
-    <div class="no-helper-found">
-      <h3>Helper not found or an error occurred.</h3>
-      <button mat-stroked-button (click)="goBack()">Back to List</button>
-    </div>
-  </ng-template>
 </div>
 
+<!-- Delete Dialog -->
 <div class="modal-overlay" *ngIf="showDeleteConfirm">
   <div class="modal-content">
     <h3>Confirm Deletion</h3>
-    <p>Are you sure you want to delete <strong>{{ helper?.fullName }}</strong>? This action cannot be undone.</p>
+    <p>Are you sure you want to delete <strong>{{ currentHelper?.fullName }}</strong>? This action cannot be undone.</p>
     <div class="modal-actions">
       <button mat-stroked-button color="accent" (click)="cancelDelete()">Cancel</button>
       <button mat-flat-button color="warn" (click)="executeDelete()">Delete</button>

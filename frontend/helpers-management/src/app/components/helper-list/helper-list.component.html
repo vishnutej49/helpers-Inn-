@@ -1,92 +1,37 @@
 <div class="helper-dashboard-container">
+
   <div class="left-panel">
-    
-    <div class="panel-header">
-      <h3>Helpers</h3>
-      <button mat-flat-button color="primary" [routerLink]="['/helpers/new']" class="btn-add-new">
-        <mat-icon svgIcon="add-icon"></mat-icon>
-        Add New
-      </button>
-    </div>
-
-    <div class="filter-sort">
-      <div class="filter-sort-controls">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Search helpers...</mat-label>
-          <input matInput type="text" [(ngModel)]="searchTerm" (input)="applyFiltersAndSort()">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-  
-        <div class="filter-section">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Filter by Service Type</mat-label>
-            <mat-select [(ngModel)]="selectedServiceTypeFilter" (selectionChange)="applyFiltersAndSort()">
-              <mat-option value="">All Service Types</mat-option>
-              <mat-option *ngFor="let type of serviceTypes" [value]="type">{{type}}</mat-option>
-            </mat-select>
-          </mat-form-field>
-  
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Filter by Organization</mat-label>
-            <mat-select [(ngModel)]="selectedOrganizationFilter" (selectionChange)="applyFiltersAndSort()">
-              <mat-option value="">All Organizations</mat-option>
-              <mat-option *ngFor="let org of organizations" [value]="org">{{org}}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-  
-        <div class="sort-controls">
-          <mat-form-field appearance="outline" class="sort-dropdown-field">
-            <mat-label>Sort by</mat-label>
-            <mat-select [(ngModel)]="sortKey" (selectionChange)="applyFiltersAndSort()">
-              <mat-option value="fullName">Name</mat-option>
-              <mat-option value="employeeCode">Employee ID</mat-option>
-              <mat-option value="serviceType">Service Type</mat-option>
-              <mat-option value="organization">Organization</mat-option>
-              <mat-option value="phno">Phone</mat-option>
-              <mat-option value="id">MongoDB ID</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <button mat-icon-button class="btn-sort-order" (click)="toggleSortOrder()">
-            <mat-icon *ngIf="sortOrder === 'asc'" svgIcon="arrow-up-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"/>
-              </svg>
-            </mat-icon>
-            <mat-icon *ngIf="sortOrder === 'desc'" svgIcon="arrow-down-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1"/>
-              </svg>
-            </mat-icon>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="helper-count">
-      Showing {{ filteredHelpers.length }} of {{ helpers.length }} results
-    </div>
-
     <ul class="helper-list">
-      <li *ngIf="filteredHelpers.length === 0" class="no-helpers-message">
+      <li *ngIf="filteredHelpers().length === 0" class="no-helpers-message">
         No helpers found matching your criteria.
       </li>
-      <li *ngFor="let helper of filteredHelpers"
-          [class.selected]="helper._id === selectedHelperId"
-          [routerLink]="['/helpers', helper._id]"
+      <li *ngFor="let helper of filteredHelpers()"
+          [class.selected]="helper._id === selectedHelperId()"
+          (click)="selectHelper(helper)"
           class="helper-list-item">
-        <img [src]="helper.photoURL || 'https://placehold.co/50x50/E0E0E0/000000?text=NP'"
+        <img [src]="getProfileImageUrl(helper)"
              alt="{{ helper.fullName }}'s photo" class="helper-photo"
              onerror="this.onerror=null;this.src='https://placehold.co/50x50/E0E0E0/000000?text=NP';">
         <div class="helper-info">
           <span class="helper-name">{{ helper.fullName }}</span>
-          <span class="helper-service">{{ helper.serviceType }} ({{ helper.employeeCode }})</span>
+          <span class="helper-service">{{ helper.serviceType }}</span>
         </div>
       </li>
     </ul>
   </div>
 
   <div class="right-panel">
-    <router-outlet></router-outlet>
+    <ng-container *ngIf="selectedHelper() && selectedHelper() !== null; else noHelperSelected">
+      <app-helper-detail></app-helper-detail>
+    </ng-container>
+    
+    <ng-template #noHelperSelected>
+      <div class="no-helper-selected">
+        <h3>Select a helper to view details</h3>
+        <p>Choose a helper from the list to see their information</p>
+        <p>Debug: selectedHelper = {{ selectedHelper() | json }}</p>
+      </div>
+    </ng-template>
   </div>
+  
 </div>

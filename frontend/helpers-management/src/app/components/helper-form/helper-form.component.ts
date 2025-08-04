@@ -14,7 +14,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon'; 
+import { MatIconModule } from '@angular/material/icon';
+import { MatStepperModule } from '@angular/material/stepper'; 
 
 @Component({
   selector: 'app-helper-form',
@@ -28,7 +29,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatRadioModule,      
     MatCheckboxModule,   
     MatButtonModule,     
-    MatIconModule        
+    MatIconModule,
+    MatStepperModule
   ],
   templateUrl: './helper-form.component.html',
   styleUrls: ['./helper-form.component.scss']
@@ -42,15 +44,16 @@ export class HelperFormComponent implements OnInit, OnDestroy {
 
   showPreviewModal: boolean = false;
   previewData: Helper | null = null;
+  currentStep: number = 0;
 
   selectedPhotoFile: File | null = null;
   selectedKycFile: File | null = null;
   photoPreviewUrl: string | ArrayBuffer | null = null;
   kycPreviewUrl: string | ArrayBuffer | null = null;
 
-  serviceTypes: string[] = ['Cook', 'Driver', 'Cleaner'];
-  organizations: string[] = ['ASBL', 'Inncircles'];
-  availableLanguages: string[] = ['Telugu', 'Hindi', 'English'];
+  serviceTypes: string[] = ['Cook', 'Driver', 'Cleaner', 'Painter'];
+  organizations: string[] = ['ASBL', 'Inncircles', 'Google', 'Microsoft'];
+  availableLanguages: string[] = ['Telugu', 'Hindi', 'English', 'Tamil'];
   genders: string[] = ['Male', 'Female', 'Others'];
   vehicleTypes: string[] = ['Bike', 'Car', 'Scooter', 'Van', 'None'];
   docTypes: string[] = ['Aadhar', 'Passport', 'Driving License', 'Voter ID'];
@@ -106,15 +109,17 @@ export class HelperFormComponent implements OnInit, OnDestroy {
       serviceType: ['', Validators.required],
       organization: ['', Validators.required],
       fullName: ['', Validators.required],
-      languages: this.fb.array([], Validators.minLength(2)),
+      languages: this.fb.array([], Validators.required),
       gender: ['', Validators.required],
       email: ['', [Validators.email]],
       phno: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-      vehicleType: ['None'],
+      vehicleType: [''],
       vehicleNumber: [''],
       docType: ['', Validators.required],
-      kycdoc: [null, Validators.required],
-      photoURL: [null]
+      kycdoc: [''],
+      docType2: [''],
+      kycdo2: [''],
+      photoURL: ['']
     });
   }
 
@@ -150,23 +155,31 @@ export class HelperFormComponent implements OnInit, OnDestroy {
       }
     });
   }
+  selectedLanguages: string[] = [];
+  showLanguagesDropdown = false;
+
+  toggleLanguagesDropdown() {
+    this.showLanguagesDropdown = !this.showLanguagesDropdown;
+  }
+
 
   get allLanguages(): FormArray {
     return this.helperForm.get('languages') as FormArray;
   }
 
-  onChangeLanguage(event: any): void {
-    const checked = event.checked; 
-    const value = event.source.value;
-
+  onChangeLanguage(language: string, checked: boolean) {
     if (checked) {
-      this.allLanguages.push(new FormControl(value));
+      this.selectedLanguages.push(language);
     } else {
-      const inx = this.allLanguages.controls.findIndex(x => x.value === value);
-      if (inx >= 0) {
-        this.allLanguages.removeAt(inx);
-      }
+      this.selectedLanguages = this.selectedLanguages.filter(l => l !== language);
     }
+  
+    const formArray = this.helperForm.get('languages') as FormArray;
+    formArray.clear(); // clear before setting
+  
+    this.selectedLanguages.forEach(lang => formArray.push(new FormControl(lang)));
+  
+    formArray.markAsTouched(); // trigger validation
   }
 
   setLanguages(languages: string[]): void {
@@ -292,6 +305,7 @@ export class HelperFormComponent implements OnInit, OnDestroy {
     }
 
     this.showPreviewModal = true;
+    this.confirmSubmit();
   }
 
   confirmSubmit(): void {
@@ -305,20 +319,23 @@ export class HelperFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    console.log('1', this.helperForm.value);
     if (this.helperForm.invalid) {
       console.error('Form is invalid during final submission.');
       this.isSubmitted = true;
       this.helperForm.markAllAsTouched();
       return;
     }
-
+    console.log('2'+this.helperForm.value);
     this.isLoading = true;
-    const helperData: Helper = this.helperForm.getRawValue();
-
+    const helperData: Helper = this.helperForm.value;
+    console.log('3'+this.helperForm.value);
     let operation: Observable<Helper>;
     if (this.isEditMode && this.helperId) {
       operation = this.helperService.updateHelper(this.helperId, helperData, this.selectedPhotoFile, this.selectedKycFile);
     } else {
+      console.log("frontend: "+this.selectedPhotoFile);
+      console.log("frontend: "+this.selectedKycFile);
       operation = this.helperService.createHelper(helperData, this.selectedPhotoFile, this.selectedKycFile);
     }
 
@@ -328,6 +345,9 @@ export class HelperFormComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (res) => {
         console.log('Helper operation successful!', res);
+        if(res._id){
+          this.helperService.setSelectedHelperId(res._id);
+        }
         this.router.navigate(['/helpers', res._id]);
       },
       error: (err) => {
