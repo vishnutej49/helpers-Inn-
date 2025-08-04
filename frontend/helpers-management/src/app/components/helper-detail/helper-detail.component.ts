@@ -8,7 +8,8 @@ import { takeUntil } from 'rxjs/operators';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-
+import { IdcardComponent } from '../idcard/idcard.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-helper-detail',
   standalone: true,
@@ -33,6 +34,7 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
   helper = this.selectedHelper();
 
   constructor(
+    private dialog: MatDialog,
     private router: Router,
     private helperService: HelperService
   ) {
@@ -98,6 +100,14 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
       return helper.kycdoc;
     }
     return "";
+  }
+  openQrDialog() {
+    const helperData = this.currentHelper;
+
+    this.dialog.open(IdcardComponent, {
+      width: '500px',
+      data: helperData
+    });
   }
 
   ngOnDestroy(): void {

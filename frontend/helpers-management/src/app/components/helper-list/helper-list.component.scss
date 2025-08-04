@@ -4,20 +4,22 @@
   font-family: 'Inter', sans-serif;
   background-color: #ffffff;
   border-radius: 16px;
-  margin: 20px auto; 
-  max-width: 1200px; 
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 20px; 
+  // max-width: 1200px; 
   overflow: hidden;
 
   .left-panel {
     flex: 0 0 450px; 
-    background-color: #ffffff;
+    background-color: #ffffff1d;
     border-right: 1px solid #e8e8e8;
-    padding: 2rem;
+    padding: 0.5rem;
     display: flex;
     flex-direction: column;
-    width: 600px;
+    width: 25%px;
     overflow-y: auto;
-    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
     
     .panel-header {
       display: flex;
@@ -229,7 +231,7 @@
 
   .right-panel {
     flex: 1; /* Allows right panel to take remaining space */
-    padding: 1rem;
+    // padding: 1rem;
     overflow-y: auto;
     background-color: #f8f9fa;
     display: flex;
