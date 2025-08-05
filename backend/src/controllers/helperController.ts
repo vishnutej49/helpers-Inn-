@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Helper } from '../models/helper';
-import { uploadToS3 } from '../config/uploadToS3';
+import { uploadToS3, deleteFromS3 } from '../config/s3operations';
 
 export const createHelper = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -13,10 +13,10 @@ export const createHelper = async (req: Request, res: Response): Promise<void> =
     let kycdoc = '';
 
     if (files?.photoURL?.[0]) {
-      photoURL = await uploadToS3(files.photoURL[0]);
+      photoURL = await uploadToS3(files.photoURL[0], 'profile-photos');
     }
     if (files?.kycdoc?.[0]) {
-      kycdoc = await uploadToS3(files.kycdoc[0]);
+      kycdoc = await uploadToS3(files.kycdoc[0], 'kyc-documents');
     }
     console.log(photoURL, kycdoc);
 
@@ -77,14 +77,16 @@ export const updateHelper = async (req: Request, res: Response): Promise<void> =
       [fieldname: string]: Express.Multer.File[];
     };
 
-    let photoURL = '';
-    let kycdoc = '';
+    let photoURL = req.body.photoURL || '';
+    let kycdoc = req.body.kycdoc || '';
 
     if (files?.photoURL?.[0]) {
-      photoURL = await uploadToS3(files.photoURL[0]);
+      await deleteFromS3(photoURL)
+      photoURL = await uploadToS3(files.photoURL[0], 'profile-photos');
     }
     if (files?.kycdoc?.[0]) {
-      kycdoc = await uploadToS3(files.kycdoc[0]);
+      await deleteFromS3(photoURL)
+      kycdoc = await uploadToS3(files.kycdoc[0], 'kyc-documents');
     }
 
 
@@ -154,11 +156,14 @@ export const deleteHelper = async (req: Request, res: Response): Promise<void> =
       res.status(404).json({ message: 'Helper not found' });
       return;
     }
+    await deleteFromS3(deleted.photoURL || '');
+    await deleteFromS3(deleted.kycdoc || '') ;
     res.status(204).send();
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
