@@ -1,14 +1,12 @@
 <nav>
   <h2>Helpers</h2>
   <div class="nav-container">
-    <!-- Sort Button -->
-    <button mat-icon-button class="btn-sort-order" (click)="toggleSortOrder()">
-      <mat-icon *ngIf="sortOrder === 'asc'">keyboard_arrow_up</mat-icon>
-      <mat-icon *ngIf="sortOrder === 'desc'">keyboard_arrow_down</mat-icon>
-    </button>
+    
     <div class="nav-section">
-      <button mat-flat-button color="primary" (click)="toggleSortOptions()" class="btn-sort">
-        Sort
+      <button  color="primary" (click)="toggleSortOptions()" class="btn-sort">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+        </svg>        
       </button>
       
       <!-- Sort Options Dropdown -->
@@ -34,38 +32,44 @@
 
     <!-- Filter Button -->
     <div class="nav-section">
-      <button mat-flat-button color="primary" (click)="toggleFilterOptions()" class="btn-filter">
-        <mat-icon>filter_list</mat-icon>
-        Filter
+      <button  color="primary" (click)="toggleFilterOptions()" class="btn-filter">
+        <!-- <mat-icon>filter_list</mat-icon> -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+        </svg>
+        
+        <!-- Filter -->
       </button>
       
       <!-- Filter Options Dropdown -->
       <div class="dropdown-options" *ngIf="showFilterOptions">
         <div class="filter-section">
           <div class="filter-group">
-            <h4>Service Type</h4>
-            <div class="checkbox-list">
-              <mat-checkbox 
-                *ngFor="let type of serviceTypes" 
-                [checked]="selectedServiceTypes.includes(type)"
-                (change)="onServiceTypeChange(type, $event.checked)"
-                class="filter-checkbox">
-                {{ type }}
-              </mat-checkbox>
-            </div>
+            <mat-form-field appearance="outline" class="filter-dropdown-field">
+              <mat-label>Service Type</mat-label>
+              <mat-select [value]="selectedServiceTypes" multiple>
+                <mat-option 
+                  *ngFor="let type of serviceTypes" 
+                  [value]="type"
+                  (onSelectionChange)="onServiceTypeChange(type, $event.source.selected)">
+                  {{ type }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
 
           <div class="filter-group">
-            <h4>Organization</h4>
-            <div class="checkbox-list">
-              <mat-checkbox 
-                *ngFor="let org of organizations" 
-                [checked]="selectedOrganizations.includes(org)"
-                (change)="onOrganizationChange(org, $event.checked)"
-                class="filter-checkbox">
-                {{ org }}
-              </mat-checkbox>
-            </div>
+            <mat-form-field appearance="outline" class="filter-dropdown-field">
+              <mat-label>Organization</mat-label>
+              <mat-select [value]="selectedOrganizations" multiple>
+                <mat-option 
+                  *ngFor="let org of organizations" 
+                  [value]="org"
+                  (onSelectionChange)="onOrganizationChange(org, $event.source.selected)">
+                  {{ org }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
           
           <div class="filter-actions">
@@ -80,6 +84,13 @@
       </div>
     </div>
 
+    <div class="nav-section">
+      <button class="btn-filter">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+        </svg>
+      </button>
+    </div>
     <!-- Search and Helper Count Row -->
     <div class="nav-section search-section">
       <mat-form-field appearance="outline" class="search-field">
@@ -98,6 +109,12 @@
 
     <!-- Add Helper Button (Right Aligned) -->
     <div class="nav-section add-section">
+      <button color="primary" (click)="openQrDialog($event)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+        </svg>
+    </button>
       <button mat-flat-button color="primary" [routerLink]="['/helpers/new']" class="btn-add-new">
         <mat-icon>add</mat-icon>
         Add Helper

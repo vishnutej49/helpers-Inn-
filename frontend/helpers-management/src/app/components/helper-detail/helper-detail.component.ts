@@ -101,7 +101,8 @@ export class HelperDetailComponent implements OnInit, OnDestroy {
     }
     return "";
   }
-  openQrDialog() {
+  openQrDialog(event: any) {
+    event.preventDefault();
     const helperData = this.currentHelper;
 
     this.dialog.open(IdcardComponent, {

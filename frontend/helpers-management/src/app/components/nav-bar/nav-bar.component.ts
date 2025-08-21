@@ -12,6 +12,7 @@ import { Helper } from '../../models/helper.model';
 import { Subject, combineLatest } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { HelperService, FilterOptions, SortOptions } from '../../services/helper.service';
+import { IdcardComponent } from '../idcard/idcard.component';
 
 @Component({
   selector: 'app-nav-bar',
@@ -53,6 +54,8 @@ export class NavBarComponent implements OnInit, OnDestroy {
   showSortOptions: boolean = false;
 
   private destroy$ = new Subject<void>();
+  dialog: any;
+  currentHelper: any = this.helperService.selectedHelper;
 
   constructor(
     private helperService: HelperService,
@@ -200,6 +203,16 @@ export class NavBarComponent implements OnInit, OnDestroy {
 
   addNewHelper(): void {
     this.router.navigate(['/helpers/new']);
+  }
+
+  openQrDialog(event: any) {
+    event.preventDefault();
+    const helperData = this.currentHelper;
+
+    this.dialog.open(IdcardComponent, {
+      width: '500px',
+      data: helperData
+    });
   }
 
   ngOnDestroy(): void {

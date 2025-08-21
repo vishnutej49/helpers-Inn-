@@ -1,14 +1,14 @@
 .helper-detail-container {
-  padding: 1rem;
-  background-color: #ffffff;
-  border-radius: 16px;
-  // max-width: 950px;
-  // width: 100%;
-  width: 800px;
-  margin: 2rem auto;
+  // padding: 1rem;
+  // background-color: #ffffff;
+  width: 900px;
+  // margin: 2rem auto;
   font-family: 'Inter', sans-serif;
+  padding: 3rem;
   color: #333;
-  overflow: hidden;
+  overflow-y: auto; // Changed from hidden to auto for scrolling
+  // max-height: calc(100vh - 140px); // Add max height constraint
+  // padding-bottom: 3rem; // Add bottom padding to ensure content is visible
 
   .header {
     display: flex;
@@ -24,8 +24,8 @@
       align-items: center;
 
       .profile-photo {
-        width: 120px;
-        height: 120px;
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
         object-fit: cover;
         margin-right: 2rem;
@@ -33,17 +33,17 @@
       }
 
       .name-service {
-        h2 {
+        h3 {
           margin: 0;
-          font-size: 2.5rem;
-          font-weight: 700;
+          font-size: 1.6rem;
+          font-weight: 600;
           color: #2c3e50;
           line-height: 1.2;
         }
 
         p {
           margin: 0.6rem 0 0;
-          font-size: 1.2rem;
+          // font-size: 1.2rem;
           color: #555;
           font-weight: 500;
         }
@@ -59,9 +59,9 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 70px;
-        height: 70px;
-        border-radius: 12px;
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
         background-color: #f0f0f0;
         border: 1px solid black;
         color: #333;
@@ -107,16 +107,17 @@
   }
 
   .details-sections {
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem; // Increased margin for better spacing
+    padding-bottom: 2rem; // Add padding to ensure visibility
 
     .detail-section {
-      padding: 2rem 2.5rem;
+      padding: 1rem 1rem;
       border-radius: 12px;
-      margin-bottom: 2rem;
+      // margin-bottom: 2rem;
 
-      h3 {
+      h4 {
         color: #0a0a0a;
-        font-size: 1.6rem;
+        // font-size: 1.6rem;
         margin-top: 0;
         margin-bottom: 1.5rem;
         padding-bottom: 1rem;
@@ -125,15 +126,16 @@
       }
 
       .details-grid {
-        display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 1.5rem;
       }
 
       .detail-item {
         display: flex;
-        flex-direction: column;
-        padding: 0.5rem 0;
+        // flex-direction: column;
+        justify-content: space-between;
+        padding: 0.7rem 0;
+        width: 50%;
 
         &.full-width {
           grid-column: 1 / -1;
@@ -165,10 +167,9 @@
           display: flex;
           flex-wrap: wrap;
           gap: 0.8rem;
-          margin-top: 0.5rem;
 
           .language-tag {
-            padding: 0.4rem 1rem;
+            // padding: 0.4rem 1rem;
             border-radius: 25px;
             font-size: 0.9rem;
             font-weight: 500;
@@ -225,7 +226,7 @@
 }
 
 .modal-content {
-  background-color: #ffffff;
+  // background-color: #ffffff;
   padding: 2.5rem;
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
@@ -303,4 +304,8 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+a {
+  text-decoration: none;
+  cursor: pointer;
 }

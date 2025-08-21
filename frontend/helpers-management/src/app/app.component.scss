@@ -7,9 +7,14 @@
 main {
     height: 100%;
     width: 100%;
-    display: flex;
-    justify-content: center; /* Center content horizontally */
-    align-items: flex-start; /* Align content to the top */
     padding: 0; /* Remove default padding */
     margin: 0; /* Remove default margin */
+    app-helper-list{
+        width: 100%;
+    }
+
+}
+
+.router{
+    width: 100%;
 }

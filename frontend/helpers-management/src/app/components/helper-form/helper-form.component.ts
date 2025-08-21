@@ -48,8 +48,10 @@ export class HelperFormComponent implements OnInit, OnDestroy {
 
   selectedPhotoFile: File | null = null;
   selectedKycFile: File | null = null;
+  selectedKyc2File: File | null = null;
   photoPreviewUrl: string | ArrayBuffer | null = null;
   kycPreviewUrl: string | ArrayBuffer | null = null;
+  kyc2PreviewUrl: string | ArrayBuffer | null = null;
 
   serviceTypes: string[] = ['Cook', 'Driver', 'Cleaner', 'Painter'];
   organizations: string[] = ['ASBL', 'Inncircles', 'Google', 'Microsoft'];
@@ -81,11 +83,18 @@ export class HelperFormComponent implements OnInit, OnDestroy {
       } else {
         this.isEditMode = false;
         this.helperForm.reset();
-        this.allLanguages.clear();
+        this.helperForm.patchValue({
+          languages: [],
+          vehicleType: 'None',
+          employeeCode: ''
+        });
+        this.selectedLanguages = [];
         this.photoPreviewUrl = null;
         this.kycPreviewUrl = null;
+        this.kyc2PreviewUrl = null;
         this.selectedPhotoFile = null;
         this.selectedKycFile = null;
+        this.selectedKyc2File = null;
         this.helperForm.get('employeeCode')?.setValue('');
         this.helperForm.get('vehicleType')?.setValue('None');
       }
@@ -109,7 +118,7 @@ export class HelperFormComponent implements OnInit, OnDestroy {
       serviceType: ['', Validators.required],
       organization: ['', Validators.required],
       fullName: ['', Validators.required],
-      languages: this.fb.array([], Validators.required),
+      languages: [[], Validators.required],
       gender: ['', Validators.required],
       email: ['', [Validators.email]],
       phno: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
@@ -118,7 +127,7 @@ export class HelperFormComponent implements OnInit, OnDestroy {
       docType: ['', Validators.required],
       kycdoc: [''],
       docType2: [''],
-      kycdo2: [''],
+      kycdoc2: [''],
       photoURL: ['']
     });
   }
@@ -141,8 +150,9 @@ export class HelperFormComponent implements OnInit, OnDestroy {
           vehicleType: helper.vehicleType,
           vehicleNumber: helper.vehicleNumber,
           docType: helper.docType,
+          languages: helper.languages || []
         });
-        this.setLanguages(helper.languages);
+        this.selectedLanguages = helper.languages || [];
         this.photoPreviewUrl = helper.photoURL || null;
         this.kycPreviewUrl = helper.kycdoc || null;
         if (helper.kycdoc) {
@@ -158,39 +168,8 @@ export class HelperFormComponent implements OnInit, OnDestroy {
   selectedLanguages: string[] = [];
   showLanguagesDropdown = false;
 
-  toggleLanguagesDropdown() {
-    this.showLanguagesDropdown = !this.showLanguagesDropdown;
-  }
-
-
-  get allLanguages(): FormArray {
-    return this.helperForm.get('languages') as FormArray;
-  }
-
-  onChangeLanguage(language: string, checked: boolean) {
-    if (checked) {
-      this.selectedLanguages.push(language);
-    } else {
-      this.selectedLanguages = this.selectedLanguages.filter(l => l !== language);
-    }
-  
-    const formArray = this.helperForm.get('languages') as FormArray;
-    formArray.clear(); // clear before setting
-  
-    this.selectedLanguages.forEach(lang => formArray.push(new FormControl(lang)));
-  
-    formArray.markAsTouched(); // trigger validation
-  }
-
-  setLanguages(languages: string[]): void {
-    this.allLanguages.clear();
-    languages.forEach(lang => {
-      this.allLanguages.push(new FormControl(lang));
-    });
-  }
-
-  isLanguageSelected(language: string): boolean {
-    return this.allLanguages.controls.some(control => control.value === language);
+  get selectedLanguagesFromForm(): string[] {
+    return this.helperForm.get('languages')?.value || [];
   }
 
   isValid(field: string): boolean {
@@ -251,7 +230,16 @@ export class HelperFormComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      if (file.type === 'application/pdf') {
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/jpg',
+        'image/png'
+      ];
+      
+      if (allowedTypes.includes(file.type)) {
         this.selectedKycFile = file;
         const reader = new FileReader();
         reader.onload = () => {
@@ -277,6 +265,128 @@ export class HelperFormComponent implements OnInit, OnDestroy {
     }
     this.helperForm.get('kycdoc')?.markAsTouched();
     this.helperForm.get('kycdoc')?.markAsDirty();
+  }
+
+  onKyc2Selected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/jpg',
+        'image/png'
+      ];
+      
+      if (allowedTypes.includes(file.type)) {
+        this.selectedKyc2File = file;
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.kyc2PreviewUrl = reader.result;
+        };
+        reader.readAsDataURL(this.selectedKyc2File);
+        this.helperForm.get('kycdoc2')?.setErrors(null);
+      } else {
+        this.selectedKyc2File = null;
+        this.kyc2PreviewUrl = null;
+        this.helperForm.get('kycdoc2')?.setErrors({ invalidFileType: true });
+      }
+    } else {
+      this.selectedKyc2File = null;
+      this.kyc2PreviewUrl = null;
+      const kyc2Control = this.helperForm.get('kycdoc2');
+      if (kyc2Control) {
+        kyc2Control.updateValueAndValidity();
+      }
+    }
+    this.helperForm.get('kycdoc2')?.markAsTouched();
+    this.helperForm.get('kycdoc2')?.markAsDirty();
+  }
+
+  nextStep(): void {
+    // Validate current step before proceeding
+    if (this.currentStep === 0) {
+      // Validate step 1 fields
+      const requiredFields = ['fullName', 'serviceType', 'organization', 'languages', 'gender', 'email', 'phno', 'docType', 'kycdoc'];
+      let isValidStep = true;
+      
+      requiredFields.forEach(field => {
+        const control = this.helperForm.get(field);
+        if (control) {
+          control.markAsTouched();
+          if (control.invalid) {
+            isValidStep = false;
+          }
+        }
+      });
+      
+      // Check vehicle number if vehicle type is selected and not 'None'
+      const vehicleType = this.helperForm.get('vehicleType')?.value;
+      if (vehicleType && vehicleType !== 'None') {
+        const vehicleNumberControl = this.helperForm.get('vehicleNumber');
+        if (vehicleNumberControl) {
+          vehicleNumberControl.markAsTouched();
+          if (vehicleNumberControl.invalid) {
+            isValidStep = false;
+          }
+        }
+      }
+      
+      if (!isValidStep) {
+        return; // Don't proceed to next step
+      }
+    }
+    
+    if (this.currentStep === 1) {
+      // Validate step 2 fields if needed
+      const step2Fields = ['docType2', 'kycdoc2'];
+      let isValidStep = true;
+      
+      step2Fields.forEach(field => {
+        const control = this.helperForm.get(field);
+        if (control && control.hasError('required')) {
+          control.markAsTouched();
+          isValidStep = false;
+        }
+      });
+      
+      if (!isValidStep) {
+        return; // Don't proceed to next step
+      }
+    }
+    
+    // If validation passes, proceed to next step
+    if (this.currentStep < 2) {
+      this.currentStep++;
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    }
+  }
+
+  changePhoto(): void {
+    this.photoPreviewUrl = null;
+    this.selectedPhotoFile = null;
+    // Trigger file input click
+    const fileInput = document.getElementById('photoURL') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  changeKycDoc(): void {
+    this.kycPreviewUrl = null;
+    this.selectedKycFile = null;
+    // Trigger file input click
+    const fileInput = document.getElementById('kycdoc') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
   }
 
   showPreview(): void {

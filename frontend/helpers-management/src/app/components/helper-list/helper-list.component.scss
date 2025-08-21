@@ -1,25 +1,29 @@
 .helper-dashboard-container {
   display: flex;
-  height: calc(100vh - 40px);
+  height: calc(100vh - 120px); // Increased to account for nav bar height
   font-family: 'Inter', sans-serif;
-  background-color: #ffffff;
+  // background-color: #ffffff;
   border-radius: 16px;
   display: flex;
   width: 100%;
   justify-content: space-between;
-  margin-top: 20px; 
-  // max-width: 1200px; 
+  // margin-top: 20px; 
+  // max-width: 1200px;
+  margin: 0.7rem auto; 
   overflow: hidden;
+  padding: 0.5rem;
 
   .left-panel {
     flex: 0 0 450px; 
-    background-color: #ffffff1d;
+    // background-color: #ffffff1d;
     border-right: 1px solid #e8e8e8;
-    padding: 0.5rem;
     display: flex;
     flex-direction: column;
     width: 25%px;
     overflow-y: auto;
+    margin-right: 20px;
+    padding-bottom: 3rem; // Increased padding at bottom for scroll visibility
+    max-height: 100%; // Ensure proper height constraint
     
     .panel-header {
       display: flex;
@@ -28,6 +32,7 @@
       margin-bottom: 2rem;
       padding-bottom: 1.5rem;
       border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0; // Prevent header from shrinking
 
       h3 {
         margin: 0;
@@ -70,6 +75,7 @@
     .filter-sort{
       display: flex;
       flex-wrap: wrap;
+      flex-shrink: 0; // Prevent filter section from shrinking
       .filter-sort-controls {
         display: flex;
         gap: 0.8rem; /* Reduced gap for smaller appearance */
@@ -153,12 +159,18 @@
       font-weight: 500;
       padding-bottom: 1rem;
       border-bottom: 1px dashed #f0f0f0;
+      flex-shrink: 0; // Prevent count section from shrinking
     }
 
     .helper-list {
       list-style: none;
       padding: 0;
       margin: 0;
+      flex: 1; // Allow list to take remaining space
+      overflow-y: auto; // Make the list itself scrollable
+      padding-bottom: 2rem; // Increased padding at bottom of list
+      margin-bottom: 1rem; // Add margin to ensure content is visible
+      border-radius: 10px;
 
       .no-helpers-message {
         color: #777;
@@ -172,24 +184,18 @@
         display: flex;
         align-items: center;
         padding: 1.2rem 1rem;
-        margin-bottom: 1rem;
-        border-radius: 12px;
-        background-color: #fcfcfc;
+        background-color: #f2f2f2;
         border: 1px solid #e8e8e8;
         cursor: pointer;
         transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
         &:hover {
-          background-color: #eef7ff;
-          transform: translateY(-3px);
-          box-shadow: 0 6px 18px rgba(0, 123, 255, 0.15);
+          background-color: #d9dde1;
         }
 
         &.selected {
-          background-color: #e0f2ff;
-          border-color: #007bff;
-          box-shadow: 0 6px 20px rgba(0, 123, 255, 0.25);
-          transform: translateY(-2px);
+          background-color: #e5e5e5;
+          // border-color: #007bff;
         }
 
         .helper-photo {
@@ -209,7 +215,7 @@
           min-width: 0;
 
           .helper-name {
-            font-weight: 700;
+            font-weight: 600;
             color: #2c3e50;
             font-size: 1.2rem;
             white-space: nowrap;
@@ -233,11 +239,15 @@
     flex: 1; /* Allows right panel to take remaining space */
     // padding: 1rem;
     overflow-y: auto;
-    background-color: #f8f9fa;
     display: flex;
-    justify-content: center;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    // justify-content: center;
+
     align-items: flex-start;
     width: 900px;
+    padding-bottom: 3rem; // Add bottom padding to ensure content is visible
+    max-height: 100%; // Ensure proper height constraint
   }
 }
 
@@ -245,7 +255,8 @@
 @media (max-width: 992px) {
   .helper-dashboard-container {
     flex-direction: column;
-    height: auto;
+    height: auto; // Allow natural height
+    min-height: calc(100vh - 120px); // Ensure minimum height but allow growth
     margin: 10px;
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
@@ -257,9 +268,11 @@
     width: 100%;
     border-right: none;
     border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 1.5rem;
+    padding-bottom: 2rem; // Increased padding
     box-shadow: none;
     border-radius: 12px 12px 0 0;
+    max-height: 50vh; // Limit height on mobile to show both panels
+    overflow-y: auto; // Ensure scrolling works on mobile
   }
 
   .right-panel {
@@ -267,6 +280,8 @@
     width: 100%;
     padding-top: 1rem;
     border-radius: 0 0 12px 12px;
+    padding-bottom: 3rem; // Add bottom padding for mobile
+    min-height: 50vh; // Ensure sufficient height for content
   }
 
   .left-panel .panel-header {
@@ -340,9 +355,10 @@
   .helper-form-container, .helper-detail-container {
     padding: 1.5rem;
     margin: 1rem auto;
-
     width: 800px;
     border-radius: 12px;
+    padding-bottom: 3rem; // Ensure bottom content is visible
+    margin-bottom: 2rem; // Add bottom margin
     h2 {
       font-size: 1.8rem;
     }

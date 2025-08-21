@@ -9,34 +9,24 @@
              alt="{{ helper.fullName }}'s photo" class="profile-photo"
              onerror="this.onerror=null;this.src='https://placehold.co/150x150/E0E0E0/000000?text=No+Photo';">
         <div class="name-service">
-          <h2>{{ helper.fullName }}</h2>
+          <h3>{{ helper.fullName }}</h3>
           <p class="service-type">{{ helper.serviceType }} - {{ helper.organization }}</p>
         </div>
       </div>
       <div class="actions">
-        <!-- Download Button -->
-         <button (click)="openQrDialog()" class="action-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-              <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
-              <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
-            </svg>
-            Download
-         </button>
         <!-- Edit Button -->
         <button mat-icon-button  (click)="editHelper()" class="action-btn" aria-label="Edit">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
             <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
           </svg>
-          Edit
         </button>
 
         <!-- Delete Button -->
         <button mat-icon-button  (click)="confirmDelete()" class="action-btn" aria-label="Delete">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
             <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h4.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
           </svg>
-          Delete
         </button>
 
       </div>
@@ -45,81 +35,70 @@
     <!-- All Details -->
     <div class="details-sections">
       <div class="detail-section">
-        <h3>Employee ID</h3>
+        <h4>Employee ID</h4>
         <div class="detail-item">
-          <span class="label">Code:</span>
+          <span class="label">ID</span>
+          <span class="value">
+            <a href="#" (click)="openQrDialog($event)">View</a>
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Employee Code</span>
           <span class="value">{{ helper.employeeCode || 'N/A' }}</span>
         </div>
       </div>
 
       <div class="detail-section">
-        <h3>Personal Details</h3>
+        <h4>Personal Details</h4>
         <div class="details-grid">
           <div class="detail-item">
-            <span class="label">Full Name:</span>
-            <span class="value">{{ helper.fullName }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="label">Gender:</span>
+            <span class="label">Gender</span>
             <span class="value">{{ helper.gender }}</span>
           </div>
-          <div class="detail-item">
-            <span class="label">Phone Number:</span>
-            <span class="value">{{ helper.phno }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="label">E-mail:</span>
-            <span class="value">{{ helper.email || 'N/A' }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="label">Document Type:</span>
-            <span class="value">{{ helper.docType }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="label">KYC Document:</span>
-            <span class="value">
-              <a [href]="getkycdoc(helper)" target="_blank" rel="noopener noreferrer" class="doc-link">View Document</a>
-            </span>
-          </div>
           <div class="detail-item full-width">
-            <span class="label">Languages:</span>
+            <span class="label">Language(s)</span>
             <div class="languages-list">
               <span *ngFor="let lang of helper.languages" class="language-tag">{{ lang }}</span>
             </div>
           </div>
+          <div class="detail-item">
+            <span class="label">Mobile No.</span>
+            <span class="value">{{ helper.phno }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">EMail ID</span>
+            <span class="value">{{ helper.email || '-' }}</span>
+          </div>
+          
+          <div class="detail-item">
+            <span class="label">KYC Document</span>
+            <span class="value">
+              <a id="doc"[href]="getkycdoc(helper)" target="_blank" rel="noopener noreferrer" class="doc-link">View</a>
+            </span>
+          </div>
+          
         </div>
       </div>
 
       <div class="detail-section">
-        <h3>Service Details</h3>
+        <h4>Service Details</h4>
         <div class="details-grid">
           <div class="detail-item">
-            <span class="label">Service Type:</span>
+            <span class="label">Service Type</span>
             <span class="value">{{ helper.serviceType }}</span>
           </div>
           <div class="detail-item">
-            <span class="label">Organization:</span>
+            <span class="label">Organization</span>
             <span class="value">{{ helper.organization }}</span>
           </div>
           <div class="detail-item">
-            <span class="label">Joined On:</span>
+            <span class="label">Joined On</span>
             <span class="value">{{ (helper.joinedOn | date:'mediumDate') || 'N/A' }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="label">Vehicle Type:</span>
-            <span class="value">{{ helper.vehicleType || 'N/A' }}</span>
-          </div>
-          <div class="detail-item" *ngIf="helper.vehicleType && helper.vehicleType !== 'None'">
-            <span class="label">Vehicle Number:</span>
-            <span class="value">{{ helper.vehicleNumber || 'N/A' }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="footer-actions">
-      <button mat-stroked-button (click)="goBack()">Back to List</button>
-    </div>
 
   </ng-container>
 
@@ -128,7 +107,7 @@
 <!-- Delete Dialog -->
 <div class="modal-overlay" *ngIf="showDeleteConfirm">
   <div class="modal-content">
-    <h3>Confirm Deletion</h3>
+    <h4>Confirm Deletion</h4>
     <p>Are you sure you want to delete <strong>{{ currentHelper?.fullName }}</strong>? This action cannot be undone.</p>
     <div class="modal-actions">
       <button mat-stroked-button color="accent" (click)="cancelDelete()">Cancel</button>
